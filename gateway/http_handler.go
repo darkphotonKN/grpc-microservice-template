@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	pb "microservice-template/common/api"
 	"net/http"
@@ -16,24 +17,24 @@ func NewHttpHandler(client pb.OrderServiceClient) *HttpHandler {
 	}
 }
 
+// makes an order to the order service
 func (h *HttpHandler) handleCreateOrder(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Creating Order")
 
 	var items []*pb.ItemsWithQuantity
 
-	items = append(items, &pb.ItemsWithQuantity{
-		ID:       "1",
-		Quantity: 10,
-	})
+	err := json.NewDecoder(r.Body).Decode(&items)
 
-	items = append(items, &pb.ItemsWithQuantity{
-		ID:       "2",
-		Quantity: 7,
-	})
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		return
+	}
 
+	customerId := r.PathValue("customerID")
+
+	// makes order to order service through GRPC
 	h.client.CreateOrder(r.Context(), &pb.CreateOrderRequest{
-		CustomerID: "user1",
+		CustomerID: customerId,
 		Items:      items,
 	})
-
 }
