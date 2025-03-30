@@ -26,6 +26,7 @@ func (h *HttpHandler) handleCreateOrder(w http.ResponseWriter, r *http.Request) 
 	err := json.NewDecoder(r.Body).Decode(&items)
 
 	if err != nil {
+		fmt.Println("Error when creating order:", err.Error())
 		w.Write([]byte(err.Error()))
 		return
 	}
@@ -37,4 +38,5 @@ func (h *HttpHandler) handleCreateOrder(w http.ResponseWriter, r *http.Request) 
 		CustomerID: customerId,
 		Items:      items,
 	})
+
 }

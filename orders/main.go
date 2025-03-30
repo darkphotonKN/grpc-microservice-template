@@ -18,7 +18,7 @@ func main() {
 	grpcServer := grpc.NewServer()
 
 	// create a network listener
-	l, err := net.Listen("tcp", ":"+grpcAddr)
+	l, err := net.Listen("tcp", "localhost:"+grpcAddr)
 
 	if err != nil {
 		log.Fatalf(
@@ -37,6 +37,7 @@ func main() {
 
 	service.CreateOrder(context.Background())
 
+	log.Printf("grpc Order Server started on PORT: %s\n", grpcAddr)
 	// start serving requests
 	if err := grpcServer.Serve(l); err != nil {
 		log.Fatal("Can't connect to grpc server. Error:", err.Error())

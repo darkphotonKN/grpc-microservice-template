@@ -14,14 +14,14 @@ import (
 
 var (
 	httpAddr         = common.EnvString("PORT", "2220")
-	orderServiceAddr = common.EnvString("GRPC_ADDR", ":2221")
+	orderServiceAddr = common.EnvString("GRPC_ADDR", "2221")
 )
 
 func main() {
 	// --- setup grpc connection ---
 
 	// -- order --
-	conn, err := grpc.NewClient(orderServiceAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial("localhost:"+orderServiceAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	defer conn.Close()
 

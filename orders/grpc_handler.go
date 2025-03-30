@@ -20,11 +20,28 @@ func NewGrpcHandler(grpcServer *grpc.Server) {
 }
 
 func (h *grpcHandler) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.Order, error) {
-	order := &pb.Order{
-		ID: "111",
+
+	fmt.Println("Order received!")
+
+	items := make([]*pb.Item, len(req.Items))
+
+	for index, item := range req.Items {
+		items[index] = &pb.Item{
+			ID:       item.ID,
+			Name:     "testeritem",
+			Quantity: item.Quantity,
+			PriceID:  "rando",
+		}
 	}
 
-	fmt.Println("Order received:", order)
+	order := &pb.Order{
+		ID:         "1",
+		CustomerID: req.CustomerID,
+		Status:     "initiated",
+		Items:      items,
+	}
+
+	fmt.Printf("Outgoing order: %+v\n", order)
 
 	return order, nil
 }
