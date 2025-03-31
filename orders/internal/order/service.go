@@ -1,9 +1,9 @@
-package main
+package order
 
 import (
 	"context"
-	"microservice-template/common"
 	pb "microservice-template/common/api"
+	commonerrors "microservice-template/common/errors"
 )
 
 type service struct {
@@ -22,7 +22,7 @@ func (s *service) CreateOrder(ctx context.Context) error {
 
 func (s *service) ValidateOrder(ctx context.Context, req *pb.CreateOrderRequest) error {
 	if len(req.Items) == 0 {
-		return common.ErrNoItems
+		return commonerrors.ErrNoItems
 	}
 
 	return nil

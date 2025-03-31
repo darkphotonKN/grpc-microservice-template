@@ -3,14 +3,15 @@ package main
 import (
 	"context"
 	"log"
-	"microservice-template/common"
+	commonenv "microservice-template/common/env"
+	"microservice-template/orders/internal/order"
 	"net"
 
 	"google.golang.org/grpc"
 )
 
 var (
-	grpcAddr = common.EnvString("GRPC_ADDR", "2221")
+	grpcAddr = commonenv.EnvString("GRPC_ADDR", "2221")
 )
 
 func main() {
@@ -29,11 +30,11 @@ func main() {
 	defer l.Close()
 
 	// service setup
-	repo := NewRepository()
-	service := NewService(repo)
+	repo := order.NewRepository()
+	service := order.NewService(repo)
 
 	// start grpc server
-	NewGrpcHandler(grpcServer, service)
+	order.NewGrpcHandler(grpcServer, service)
 
 	service.CreateOrder(context.Background())
 

@@ -2,10 +2,10 @@ package main
 
 import (
 	"log"
-	"microservice-template/common"
 	"net/http"
 
 	pb "microservice-template/common/api"
+	commonenv "microservice-template/common/env"
 
 	_ "github.com/joho/godotenv/autoload" // package that loads env
 	"google.golang.org/grpc"
@@ -13,8 +13,8 @@ import (
 )
 
 var (
-	httpAddr         = common.EnvString("PORT", "2220")
-	orderServiceAddr = common.EnvString("GRPC_ADDR", "2221")
+	httpAddr         = commonenv.EnvString("PORT", "2220")
+	orderServiceAddr = commonenv.EnvString("GRPC_ADDR", "2221")
 )
 
 func main() {
