@@ -5,6 +5,9 @@ import (
 	"fmt"
 	pb "microservice-template/common/api"
 	"net/http"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type HttpHandler struct {
@@ -34,10 +37,32 @@ func (h *HttpHandler) handleCreateOrder(w http.ResponseWriter, r *http.Request) 
 	customerId := r.PathValue("customerID")
 
 	// makes order to order service through GRPC
-	order, _ := h.client.CreateOrder(r.Context(), &pb.CreateOrderRequest{
+	order, err := h.client.CreateOrder(r.Context(), &pb.CreateOrderRequest{
 		CustomerID: customerId,
 		Items:      items,
 	})
+
+	// handle errors from GRPC, using grpc's status convert helper
+	errStatus := status.Convert(err)
+
+	if errStatus != nil {
+		// matching for invalid argument with grpc's codes helper
+		if errStatus.Code() != codes.InvalidArgument {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Error when attempting to create an order: " + err.Error()))
+			return
+		}
+
+		// other error codes
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Error when attempting to create an order: " + err.Error()))
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Error when attempting to create an order: " + err.Error()))
+		return
+	}
 
 	fmt.Println("Order created:", order)
 }

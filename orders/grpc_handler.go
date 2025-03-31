@@ -10,17 +10,19 @@ import (
 
 type grpcHandler struct {
 	pb.UnimplementedOrderServiceServer
+	service OrderService
 }
 
-func NewGrpcHandler(grpcServer *grpc.Server) {
-	newGrpcHandler := grpcHandler{}
+func NewGrpcHandler(grpcServer *grpc.Server, service OrderService) {
+	newGrpcHandler := grpcHandler{
+		service: service,
+	}
 
 	// create server
 	pb.RegisterOrderServiceServer(grpcServer, &newGrpcHandler)
 }
 
 func (h *grpcHandler) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.Order, error) {
-
 	fmt.Println("Order received!")
 
 	items := make([]*pb.Item, len(req.Items))

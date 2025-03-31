@@ -4,7 +4,7 @@
 // - protoc             v5.27.1
 // source: api/oms.proto
 
-package api
+package common
 
 import (
 	context "context"

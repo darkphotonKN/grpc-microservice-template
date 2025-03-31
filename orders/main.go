@@ -33,7 +33,7 @@ func main() {
 	service := NewService(repo)
 
 	// start grpc server
-	NewGrpcHandler(grpcServer)
+	NewGrpcHandler(grpcServer, service)
 
 	service.CreateOrder(context.Background())
 
