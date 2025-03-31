@@ -7,18 +7,19 @@ import (
 	"microservice-template/orders/internal/order"
 	"net"
 
+	_ "github.com/joho/godotenv/autoload" // package that loads env
 	"google.golang.org/grpc"
 )
 
 var (
-	grpcAddr = commonenv.EnvString("GRPC_ADDR", "2221")
+	grpcAddr = commonenv.EnvString("GRPC_ORDER_ADDR", "2221")
 )
 
 func main() {
 	// create the grpc server instance
 	grpcServer := grpc.NewServer()
 
-	// create a network listener
+	// create a network listener to this service
 	l, err := net.Listen("tcp", "localhost:"+grpcAddr)
 
 	if err != nil {

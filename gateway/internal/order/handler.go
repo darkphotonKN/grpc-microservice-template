@@ -10,19 +10,17 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Handler handles HTTP requests for orders
 type Handler struct {
 	client *Client
 }
 
-// NewHandler creates a new order handler
 func NewHandler(client *Client) *Handler {
 	return &Handler{
+		// inject client here
 		client: client,
 	}
 }
 
-// HandleCreateOrder creates a new order
 func (h *Handler) HandleCreateOrder(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Creating Order")
 
@@ -62,7 +60,6 @@ func (h *Handler) HandleCreateOrder(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Successfully created order %+v", order)
 
-	// Return response
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(order)
 }

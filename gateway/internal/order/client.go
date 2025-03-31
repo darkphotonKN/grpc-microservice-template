@@ -36,9 +36,11 @@ func NewClient(addr string) (*Client, error) {
 		return nil, err
 	}
 
+	newGrpcClient := pb.NewOrderServiceClient(conn)
+
 	return &Client{
 		conn:   conn,
-		client: pb.NewOrderServiceClient(conn),
+		client: newGrpcClient,
 	}, nil
 }
 

@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	httpAddr         = commonenv.EnvString("PORT", "2220")
-	orderServiceAddr = commonenv.EnvString("GRPC_ADDR", "2221")
+	httpAddr         = commonenv.EnvString("GATEWAY_ADDR", "2220")
+	orderServiceAddr = commonenv.EnvString("GRPC_ORDER_ADDR", "2223")
 )
 
 func main() {
