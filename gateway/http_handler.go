@@ -34,9 +34,10 @@ func (h *HttpHandler) handleCreateOrder(w http.ResponseWriter, r *http.Request) 
 	customerId := r.PathValue("customerID")
 
 	// makes order to order service through GRPC
-	h.client.CreateOrder(r.Context(), &pb.CreateOrderRequest{
+	order, _ := h.client.CreateOrder(r.Context(), &pb.CreateOrderRequest{
 		CustomerID: customerId,
 		Items:      items,
 	})
 
+	fmt.Println("Order created:", order)
 }
