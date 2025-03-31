@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	pb "microservice-template/common/api"
 	commonenv "microservice-template/common/env"
 	"microservice-template/orders/internal/order"
 	"net"
@@ -35,7 +36,10 @@ func main() {
 	service := order.NewService(repo)
 
 	// start grpc server
-	order.NewGrpcHandler(grpcServer, service)
+	handler := order.NewGrpcHandler(service)
+
+	// create server
+	pb.RegisterOrderServiceServer(grpcServer, handler)
 
 	service.CreateOrder(context.Background())
 

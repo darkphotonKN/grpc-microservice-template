@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	pb "microservice-template/common/api"
-
-	"google.golang.org/grpc"
 )
 
 type grpcHandler struct {
@@ -13,17 +11,21 @@ type grpcHandler struct {
 	service OrderService
 }
 
-func NewGrpcHandler(grpcServer *grpc.Server, service OrderService) {
-	newGrpcHandler := grpcHandler{
+func NewGrpcHandler(service OrderService) *grpcHandler {
+	return &grpcHandler{
 		service: service,
 	}
-
-	// create server
-	pb.RegisterOrderServiceServer(grpcServer, &newGrpcHandler)
 }
 
 func (h *grpcHandler) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.Order, error) {
 	fmt.Println("Order received!")
+
+	// validation
+	err := h.service.ValidateOrder(ctx, req)
+
+	if err != nil {
+		return nil, err
+	}
 
 	items := make([]*pb.Item, len(req.Items))
 
