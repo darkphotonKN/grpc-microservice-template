@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	pb "microservice-template/common/api"
+	"microservice-template/gateway/internal/gateway"
 	"net/http"
 
 	"google.golang.org/grpc/codes"
@@ -11,13 +12,13 @@ import (
 )
 
 type Handler struct {
-	client *Client
+	gateway gateway.OrdersGateway
 }
 
-func NewHandler(client *Client) *Handler {
+func NewHandler(gateway gateway.OrdersGateway) *Handler {
 	return &Handler{
-		// inject client here
-		client: client,
+		// inject gatway here
+		gateway: gateway,
 	}
 }
 
@@ -37,7 +38,7 @@ func (h *Handler) HandleCreateOrder(w http.ResponseWriter, r *http.Request) {
 	customerID := r.PathValue("customerID")
 
 	// call order service
-	order, err := h.client.CreateOrder(r.Context(), &pb.CreateOrderRequest{
+	order, err := h.gateway.CreateOrder(r.Context(), &pb.CreateOrderRequest{
 		CustomerID: customerID,
 		Items:      items,
 	})
