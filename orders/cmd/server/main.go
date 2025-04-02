@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 	pb "microservice-template/common/api"
 	commonenv "microservice-template/common/env"
@@ -13,7 +12,11 @@ import (
 )
 
 var (
-	grpcAddr = commonenv.EnvString("GRPC_ORDER_ADDR", "2221")
+	grpcAddr     = commonenv.EnvString("GRPC_ORDER_ADDR", "2221")
+	amqpUser     = commonenv.EnvString("RABBITMQ_USER", "guest")
+	amqpPassword = commonenv.EnvString("RABBITMQ_USER", "guest")
+	amqpHost     = commonenv.EnvString("RABBITMQ_USER", "localhost")
+	amqpPort     = commonenv.EnvString("RABBITMQ_USER", "5672")
 )
 
 func main() {
@@ -40,8 +43,6 @@ func main() {
 
 	// create server
 	pb.RegisterOrderServiceServer(grpcServer, handler)
-
-	service.CreateOrder(context.Background())
 
 	log.Printf("grpc Order Server started on PORT: %s\n", grpcAddr)
 	// start serving requests

@@ -24,7 +24,6 @@ func main() {
 
 	if err != nil {
 		log.Printf("Error occured when attempting to establish grpc connection to order service through the gateway service: %s", err)
-
 	}
 
 	// --- routes ---

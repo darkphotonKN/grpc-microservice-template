@@ -30,6 +30,7 @@ type Client struct {
 func NewClient(addr string) (*Client, error) {
 
 	fullAddr := fmt.Sprintf("localhost:%s", addr)
+
 	conn, err := grpc.Dial(fullAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
