@@ -62,7 +62,7 @@ func (r *Registry) Register(ctx context.Context, instanceID, serviceName, hostPo
 
 	// Register the service with Consul using the Agent API
 	// AgentServiceRegistration defines the service properties and health check configuration
-	return r.client.Agent().ServiceRegister(&consul.AgentServiceRegistration{
+	err = r.client.Agent().ServiceRegister(&consul.AgentServiceRegistration{
 		ID:      instanceID,  // Unique ID for this service instance
 		Address: host,        // Host where the service is running
 		Port:    port,        // Port the service is listening on
@@ -75,6 +75,13 @@ func (r *Registry) Register(ctx context.Context, instanceID, serviceName, hostPo
 			DeregisterCriticalServiceAfter: "10s",      // Auto-deregister if service remains unhealthy for this duration
 		},
 	})
+
+	if err != nil {
+		fmt.Printf("\nError when attempting to start service register agent: %s\n\n", err)
+		return err
+	}
+
+	return nil
 }
 
 // Deregister removes a service instance from Consul's registry
@@ -100,6 +107,10 @@ func (r *Registry) Discover(ctx context.Context, serviceName string) ([]string, 
 	// The empty string parameter is for tags (unused here)
 	// The 'true' parameter means "only return passing services"
 	entries, _, err := r.client.Health().Service(serviceName, "", true, nil)
+
+	// TODO: REMOVE AFTER DEBUG
+	fmt.Printf("\ncurrent entries: \n\n%+v\n\n", entries)
+
 	if err != nil {
 		return nil, err
 	}
@@ -109,6 +120,9 @@ func (r *Registry) Discover(ctx context.Context, serviceName string) ([]string, 
 	for _, entry := range entries {
 		instances = append(instances, fmt.Sprintf("%s:%d", entry.Service.Address, entry.Service.Port))
 	}
+
+	// TODO: REMOVE AFTER DEBUG
+	fmt.Printf("\ncurrent instances: \n\n%+v\n\n", instances)
 
 	// Return the list of discovered service instances
 	return instances, nil

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -23,39 +24,39 @@ var (
 )
 
 func main() {
+	// --- service discovery setup ---
 
-	// --- service discovery ---
-
-	// -- order --
-	orderRegistry, err := consul.NewRegistry(consulAddr, serviceName)
+	// -- consul client --
+	registry, err := consul.NewRegistry(consulAddr, serviceName)
 
 	ctx := context.Background()
 	instanceID := discovery.GenerateInstanceID(serviceName)
 
-	if err := orderRegistry.Register(ctx, instanceID, serviceName, "localhost:"+httpAddr); err != nil {
-		if err := orderRegistry.Register(ctx, instanceID, serviceName, httpAddr); err != nil {
-			// panic if service cannot be registered
-			panic(err)
-		}
-		// panic if service cannot be registered
+	// -- discovery --
+	if err := registry.Register(ctx, instanceID, serviceName, "localhost:"+httpAddr); err != nil {
+		fmt.Printf("\nError when registering service:\n\n%s\n\n", err)
 		panic(err)
 	}
 
 	go func() {
 		for {
-			if err := orderRegistry.HealthCheck(instanceID, serviceName); err != nil {
+			if err := registry.HealthCheck(instanceID, serviceName); err != nil {
 				log.Fatal("Health check failed.")
 			}
 			time.Sleep(time.Second * 1)
 		}
 	}()
 
-	defer orderRegistry.Deregister(ctx, instanceID, serviceName)
+	defer registry.Deregister(ctx, instanceID, serviceName)
 
 	// --- setup grpc connection ---
+	// sets up grpc connection with registry from service discovery injected
 
-	orderGateway := gateway.NewGRPCGateway(orderRegistry) // sets up gateway with service discovery
-	handler := order.NewHandler(orderGateway)             // sets up handler for grpc requests
+	// TODO: REMOVE AFTER DEBUG
+	fmt.Printf("\ncurrent registry: \n\n%+v\n\n", *registry)
+
+	orderGateway := gateway.NewGRPCGateway(registry)
+	handler := order.NewHandler(orderGateway)
 
 	if err != nil {
 		log.Printf("Error occured when attempting to establish grpc connection to order service through the gateway service: %s", err)

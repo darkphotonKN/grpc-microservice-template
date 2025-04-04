@@ -24,7 +24,7 @@ func (g *gateway) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (
 	conn, err := discovery.ServiceConnection(ctx, "orders", g.registry)
 
 	if err != nil {
-		log.Fatalf("Failed to dial to server.")
+		log.Fatalf("Failed to dial to server. Error: %s\n", err)
 	}
 
 	// create client to interface with through service discovery connection

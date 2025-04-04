@@ -2,6 +2,7 @@ package discovery
 
 import (
 	"context"
+	"errors"
 	"math/rand"
 
 	"google.golang.org/grpc"
@@ -16,5 +17,11 @@ func ServiceConnection(ctx context.Context, serviceName string, registry Registr
 		return nil, err
 	}
 
-	return grpc.Dial(addrs[rand.Intn(len(addrs))], grpc.WithTransportCredentials(insecure.NewCredentials()))
+	length := rand.Intn(len(addrs))
+
+	if length == 0 {
+		return nil, errors.New("There are no services to discover now.")
+	}
+
+	return grpc.Dial(addrs[length], grpc.WithTransportCredentials(insecure.NewCredentials()))
 }

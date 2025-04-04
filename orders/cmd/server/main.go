@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	pb "microservice-template/common/api"
 	"microservice-template/common/discovery"
@@ -22,22 +23,20 @@ var (
 	amqpHost     = commonenv.EnvString("RABBITMQ_USER", "localhost")
 	amqpPort     = commonenv.EnvString("RABBITMQ_USER", "5672")
 	consulAddr   = commonenv.EnvString("CONSUL_ADDR", "localhost:8500")
-	serviceName  = "gateway"
+	serviceName  = "orders"
 )
 
 func main() {
-	// --- service discovery ---
+	// --- service discovery setup ---
 	registry, err := consul.NewRegistry(consulAddr, serviceName)
 
 	ctx := context.Background()
 	instanceID := discovery.GenerateInstanceID(serviceName)
 
+	// -- discovery --
 	if err := registry.Register(ctx, instanceID, serviceName, "localhost:"+grpcAddr); err != nil {
-		if err := registry.Register(ctx, instanceID, serviceName, grpcAddr); err != nil {
-			// panic if service cannot be registered
-			panic(err)
-		}
-		// panic if service cannot be registered
+		// TODO: REMOVE AFTER DEBUG
+		fmt.Printf("\nError when registering service:\n\n%s\n\n", err)
 		panic(err)
 	}
 
