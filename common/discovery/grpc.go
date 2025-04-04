@@ -13,15 +13,16 @@ func ServiceConnection(ctx context.Context, serviceName string, registry Registr
 
 	// discover the other services
 	addrs, err := registry.Discover(ctx, serviceName)
+
 	if err != nil {
 		return nil, err
 	}
 
-	length := rand.Intn(len(addrs))
+	length := len(addrs)
 
 	if length == 0 {
 		return nil, errors.New("There are no services to discover now.")
 	}
 
-	return grpc.Dial(addrs[length], grpc.WithTransportCredentials(insecure.NewCredentials()))
+	return grpc.Dial(addrs[rand.Intn(length)], grpc.WithTransportCredentials(insecure.NewCredentials()))
 }

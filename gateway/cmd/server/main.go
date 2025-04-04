@@ -52,9 +52,6 @@ func main() {
 	// --- setup grpc connection ---
 	// sets up grpc connection with registry from service discovery injected
 
-	// TODO: REMOVE AFTER DEBUG
-	fmt.Printf("\ncurrent registry: \n\n%+v\n\n", *registry)
-
 	orderGateway := gateway.NewGRPCGateway(registry)
 	handler := order.NewHandler(orderGateway)
 

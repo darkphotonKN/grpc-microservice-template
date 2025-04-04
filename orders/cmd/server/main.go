@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	pb "microservice-template/common/api"
 	"microservice-template/common/discovery"
@@ -35,8 +34,6 @@ func main() {
 
 	// -- discovery --
 	if err := registry.Register(ctx, instanceID, serviceName, "localhost:"+grpcAddr); err != nil {
-		// TODO: REMOVE AFTER DEBUG
-		fmt.Printf("\nError when registering service:\n\n%s\n\n", err)
 		panic(err)
 	}
 
