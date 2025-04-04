@@ -1,11 +1,15 @@
 package main
 
 import (
+	"context"
 	"log"
 	pb "microservice-template/common/api"
+	"microservice-template/common/discovery"
+	"microservice-template/common/discovery/consul"
 	commonenv "microservice-template/common/env"
 	"microservice-template/orders/internal/order"
 	"net"
+	"time"
 
 	_ "github.com/joho/godotenv/autoload" // package that loads env
 	"google.golang.org/grpc"
@@ -17,10 +21,38 @@ var (
 	amqpPassword = commonenv.EnvString("RABBITMQ_USER", "guest")
 	amqpHost     = commonenv.EnvString("RABBITMQ_USER", "localhost")
 	amqpPort     = commonenv.EnvString("RABBITMQ_USER", "5672")
+	consulAddr   = commonenv.EnvString("CONSUL_ADDR", "localhost:8500")
+	serviceName  = "gateway"
 )
 
 func main() {
-	// create the grpc server instance
+	// --- service discovery ---
+	registry, err := consul.NewRegistry(consulAddr, serviceName)
+
+	ctx := context.Background()
+	instanceID := discovery.GenerateInstanceID(serviceName)
+
+	if err := registry.Register(ctx, instanceID, serviceName, "localhost:"+grpcAddr); err != nil {
+		if err := registry.Register(ctx, instanceID, serviceName, grpcAddr); err != nil {
+			// panic if service cannot be registered
+			panic(err)
+		}
+		// panic if service cannot be registered
+		panic(err)
+	}
+
+	go func() {
+		for {
+			if err := registry.HealthCheck(instanceID, serviceName); err != nil {
+				log.Fatal("Health check failed.")
+			}
+			time.Sleep(time.Second * 1)
+		}
+	}()
+
+	defer registry.Deregister(ctx, instanceID, serviceName)
+
+	// --- server initialization ---
 	grpcServer := grpc.NewServer()
 
 	// create a network listener to this service
@@ -49,4 +81,5 @@ func main() {
 	if err := grpcServer.Serve(l); err != nil {
 		log.Fatal("Can't connect to grpc server. Error:", err.Error())
 	}
+
 }

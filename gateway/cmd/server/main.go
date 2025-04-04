@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"time"
 
 	"microservice-template/common/discovery"
 	"microservice-template/common/discovery/consul"
@@ -22,7 +23,8 @@ var (
 )
 
 func main() {
-	// --- setup grpc connection ---
+
+	// --- service discovery ---
 
 	// -- order --
 	orderRegistry, err := consul.NewRegistry(consulAddr, serviceName)
@@ -30,13 +32,27 @@ func main() {
 	ctx := context.Background()
 	instanceID := discovery.GenerateInstanceID(serviceName)
 
-	if err := orderRegistry.Register(ctx, instanceID, serviceName, httpAddr); err != nil {
+	if err := orderRegistry.Register(ctx, instanceID, serviceName, "localhost:"+httpAddr); err != nil {
+		if err := orderRegistry.Register(ctx, instanceID, serviceName, httpAddr); err != nil {
+			// panic if service cannot be registered
+			panic(err)
+		}
 		// panic if service cannot be registered
 		panic(err)
 	}
 
 	go func() {
+		for {
+			if err := orderRegistry.HealthCheck(instanceID, serviceName); err != nil {
+				log.Fatal("Health check failed.")
+			}
+			time.Sleep(time.Second * 1)
+		}
 	}()
+
+	defer orderRegistry.Deregister(ctx, instanceID, serviceName)
+
+	// --- setup grpc connection ---
 
 	orderGateway := gateway.NewGRPCGateway(orderRegistry) // sets up gateway with service discovery
 	handler := order.NewHandler(orderGateway)             // sets up handler for grpc requests

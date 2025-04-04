@@ -19,6 +19,7 @@ func NewGRPCGateway(registry discovery.Registry) OrdersGateway {
 }
 
 func (g *gateway) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.Order, error) {
+
 	// connection instance created through service discovery first
 	conn, err := discovery.ServiceConnection(ctx, "orders", g.registry)
 
