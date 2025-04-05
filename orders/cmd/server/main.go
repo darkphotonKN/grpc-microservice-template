@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	pb "microservice-template/common/api"
+	"microservice-template/common/broker"
 	"microservice-template/common/discovery"
 	"microservice-template/common/discovery/consul"
 	commonenv "microservice-template/common/env"
@@ -37,6 +38,7 @@ func main() {
 		panic(err)
 	}
 
+	// -- health check --
 	go func() {
 		for {
 			if err := registry.HealthCheck(instanceID, serviceName); err != nil {
@@ -47,6 +49,14 @@ func main() {
 	}()
 
 	defer registry.Deregister(ctx, instanceID, serviceName)
+
+	// --- message broker initialization ---
+	ch, close := broker.Connect(amqpUser, amqpPassword, amqpHost, amqpPort)
+
+	defer func() {
+		close()
+		ch.Close()
+	}()
 
 	// --- server initialization ---
 	grpcServer := grpc.NewServer()
@@ -64,7 +74,7 @@ func main() {
 
 	// service setup
 	repo := order.NewRepository()
-	service := order.NewService(repo)
+	service := order.NewService(repo, ch)
 
 	// start grpc server
 	handler := order.NewGrpcHandler(service)

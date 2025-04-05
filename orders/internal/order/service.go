@@ -2,23 +2,28 @@ package order
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	pb "microservice-template/common/api"
+	"microservice-template/common/broker"
 	commonerrors "microservice-template/common/errors"
+
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type service struct {
-	repo OrderRepository
+	repo      OrderRepository
+	publishCh *amqp.Channel
 }
 
-func NewService(repo OrderRepository) OrderService {
+func NewService(repo OrderRepository, publishCh *amqp.Channel) OrderService {
 	return &service{
-		repo: repo,
+		repo:      repo,
+		publishCh: publishCh,
 	}
 }
 
 func (s *service) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.Order, error) {
-	// validation
 	err := s.ValidateOrder(ctx, req)
 
 	if err != nil {
@@ -43,7 +48,26 @@ func (s *service) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (
 		Items:      items,
 	}
 
-	fmt.Printf("Outgoing order: %+v\n", order)
+	fmt.Printf("creating order at order service: %+v\n", order)
+
+	// publish created order via rabbitmq
+
+	marshalledOrder, err := json.Marshal(order)
+
+	if err != nil {
+		return nil, err
+	}
+
+	queue, err := s.publishCh.QueueDeclare(broker.OrderCreatedEvent, true, false, false, false, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	s.publishCh.PublishWithContext(ctx, "", queue.Name, false, false, amqp.Publishing{
+		ContentType: "application/json",
+		Body:        marshalledOrder,
+	})
 
 	return order, nil
 }
