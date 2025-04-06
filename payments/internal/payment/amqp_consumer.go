@@ -1,6 +1,7 @@
 package payment
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -47,8 +48,18 @@ func (c *consumer) Listen() {
 			err := json.Unmarshal(msg.Body, &order)
 
 			if err != nil {
-				fmt.Printf("Error when unmarshalling json:", err)
+				fmt.Printf("Error when unmarshalling json: %s\n", err)
+				continue
 			}
+
+			paymentRes, err := c.service.CreatePayment(context.Background(), order)
+
+			if err != nil {
+				fmt.Printf("Error when creating payment: %s\n", err)
+				continue
+			}
+
+			fmt.Println("Create payment result:", paymentRes)
 		}
 	}()
 
