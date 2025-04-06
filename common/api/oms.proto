@@ -4,6 +4,7 @@ option go_package = "microservice-template/common";
 
 package api;
 
+// --- Order ---
 message Order {
   string ID = 1;
   string customerID = 2;
@@ -30,4 +31,19 @@ message ItemsWithQuantity {
 message CreateOrderRequest {
   string customerID = 1;
   repeated ItemsWithQuantity Items = 2;
+}
+
+// --- Payment ---
+
+message Payment {
+  string ID = 1;
+  string Intent = 2;
+}
+
+service PaymentService {
+  rpc CreatePayment(CreatePaymentRequest) returns (Payment);
+}
+
+message CreatePaymentRequest {
+  string paymentIntent = 1;
 }
