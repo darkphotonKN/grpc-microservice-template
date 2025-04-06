@@ -67,6 +67,8 @@ func (s *service) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (
 	s.publishCh.PublishWithContext(ctx, "", queue.Name, false, false, amqp.Publishing{
 		ContentType: "application/json",
 		Body:        marshalledOrder,
+		// persist message
+		DeliveryMode: amqp.Persistent,
 	})
 
 	return order, nil

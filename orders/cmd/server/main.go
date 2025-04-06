@@ -17,23 +17,24 @@ import (
 )
 
 var (
+	serviceName  = "orders"
 	grpcAddr     = commonenv.EnvString("GRPC_ORDER_ADDR", "2221")
 	amqpUser     = commonenv.EnvString("RABBITMQ_USER", "guest")
 	amqpPassword = commonenv.EnvString("RABBITMQ_USER", "guest")
 	amqpHost     = commonenv.EnvString("RABBITMQ_USER", "localhost")
 	amqpPort     = commonenv.EnvString("RABBITMQ_USER", "5672")
 	consulAddr   = commonenv.EnvString("CONSUL_ADDR", "localhost:8500")
-	serviceName  = "orders"
 )
 
 func main() {
-	// --- service discovery setup ---
-	registry, err := consul.NewRegistry(consulAddr, serviceName)
+	// --- service discovery ---
 
+	// -- setup --
+	registry, err := consul.NewRegistry(consulAddr, serviceName)
 	ctx := context.Background()
 	instanceID := discovery.GenerateInstanceID(serviceName)
 
-	// -- discovery --
+	// -- register --
 	if err := registry.Register(ctx, instanceID, serviceName, "localhost:"+grpcAddr); err != nil {
 		panic(err)
 	}
@@ -50,7 +51,7 @@ func main() {
 
 	defer registry.Deregister(ctx, instanceID, serviceName)
 
-	// --- message broker initialization ---
+	// --- message broker ---
 	ch, close := broker.Connect(amqpUser, amqpPassword, amqpHost, amqpPort)
 
 	defer func() {
