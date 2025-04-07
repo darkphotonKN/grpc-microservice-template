@@ -17,7 +17,7 @@ func NewService() *service {
 	return &service{}
 }
 
-func (s *service) CreatePayment(ctx context.Context, req *pb.CreatePaymentRequest) (*pb.Payment, error) {
+func (s *service) CreatePayment(ctx context.Context, order *pb.Order) (*pb.Payment, error) {
 
 	// TODO: connect to payment service
 

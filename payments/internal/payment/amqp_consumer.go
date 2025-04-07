@@ -59,6 +59,7 @@ func (c *consumer) Listen() {
 				continue
 			}
 
+			fmt.Printf("\nunmarshalled result: %+v\n\n", order)
 			fmt.Println("Create payment result:", paymentRes)
 		}
 	}()
