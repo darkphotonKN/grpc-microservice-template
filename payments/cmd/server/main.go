@@ -8,6 +8,7 @@ import (
 	"microservice-template/common/discovery/consul"
 	commonenv "microservice-template/common/env"
 	"microservice-template/payments/internal/payment"
+	stripeProcessor "microservice-template/payments/processor/stripe"
 	"net"
 	"time"
 
@@ -57,6 +58,8 @@ func main() {
 	// -- stripe --
 	stripe.Key = stripeKey
 
+	processor := stripeProcessor.NewStripeProcessor()
+
 	// --- message broker ---
 	ch, close := broker.Connect(amqpUser, amqpPassword, amqpHost, amqpPort)
 
@@ -67,7 +70,7 @@ func main() {
 
 	// --- server initialization ---
 	grpcServer := grpc.NewServer()
-	paymentService := payment.NewService()
+	paymentService := payment.NewService(processor)
 	paymentConsumer := payment.NewConsumer(paymentService, ch)
 	paymentConsumer.Listen() // listen to the channel for messages
 	// paymentHandler := payment.NewGrpcHandler(paymentService)

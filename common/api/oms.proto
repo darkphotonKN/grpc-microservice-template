@@ -40,10 +40,3 @@ message Payment {
   string Intent = 2;
 }
 
-service PaymentService {
-  rpc CreatePayment(CreatePaymentRequest) returns (Payment);
-}
-
-message CreatePaymentRequest {
-  string paymentIntent = 1;
-}

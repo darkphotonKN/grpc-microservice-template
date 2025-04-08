@@ -2,23 +2,32 @@ package payment
 
 import (
 	"context"
-	amqp "github.com/rabbitmq/amqp091-go"
 	pb "microservice-template/common/api"
+	"microservice-template/payments/processor"
+
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type service struct {
 	// stripe service injection
+	paymentProcessor processor.PaymentProcessor
 
 	// channel for communicating on message broker
 	ch *amqp.Channel
 }
 
-func NewService() *service {
-	return &service{}
+func NewService(payementProcessor processor.PaymentProcessor) *service {
+	return &service{
+		paymentProcessor: payementProcessor,
+	}
 }
 
-func (s *service) CreatePayment(ctx context.Context, order *pb.Order) (*pb.Payment, error) {
+func (s *service) CreatePayment(ctx context.Context, order *pb.Order) (string, error) {
+	link, err := s.paymentProcessor.CreatePaymentLink(order)
 
-	// TODO: connect to payment service
-	return nil, nil
+	if err != nil {
+		return "", err
+	}
+
+	return link, nil
 }
