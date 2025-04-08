@@ -12,6 +12,7 @@ import (
 	"time"
 
 	_ "github.com/joho/godotenv/autoload" // package that loads env
+	"github.com/stripe/stripe-go"
 	"google.golang.org/grpc"
 )
 
@@ -23,6 +24,7 @@ var (
 	amqpHost     = commonenv.EnvString("RABBITMQ_USER", "localhost")
 	amqpPort     = commonenv.EnvString("RABBITMQ_USER", "5672")
 	consulAddr   = commonenv.EnvString("CONSUL_ADDR", "localhost:8500")
+	stripeKey    = commonenv.EnvString("STRIPE_KEY", "testkey")
 )
 
 func main() {
@@ -49,6 +51,11 @@ func main() {
 	}()
 
 	defer registry.Deregister(ctx, instanceID, serviceName)
+
+	// --- third party services setup ---
+
+	// -- stripe --
+	stripe.Key = stripeKey
 
 	// --- message broker ---
 	ch, close := broker.Connect(amqpUser, amqpPassword, amqpHost, amqpPort)

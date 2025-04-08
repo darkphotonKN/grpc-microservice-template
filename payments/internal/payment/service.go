@@ -20,6 +20,5 @@ func NewService() *service {
 func (s *service) CreatePayment(ctx context.Context, order *pb.Order) (*pb.Payment, error) {
 
 	// TODO: connect to payment service
-
 	return nil, nil
 }
