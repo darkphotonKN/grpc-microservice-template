@@ -30,11 +30,14 @@ func (s *stripeProcessor) CreatePaymentLink(o *pb.Order) (string, error) {
 
 	for _, item := range o.Items {
 		items = append(items, &stripe.CheckoutSessionLineItemParams{
-			// TODO: update to real payment link
-			Price:    stripe.String("prod_S5sRbXrdUHcRfd"),
+			// prod_S5sRbXrdUHcRfd
+			Price:    stripe.String(item.PriceID),
 			Quantity: stripe.Int64(int64(item.Quantity)),
 		})
 	}
+
+	// TODO: remove after debugging:
+	fmt.Println("Stripe key before creating payment link:", stripe.Key)
 
 	params := &stripe.CheckoutSessionParams{
 		LineItems:  items,

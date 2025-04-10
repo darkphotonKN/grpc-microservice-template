@@ -18,7 +18,7 @@ func NewGrpcHandler(service PaymentService) *grpcHandler {
 	}
 }
 
-func (h *grpcHandler) CreatePayment(ctx context.Context, order *pb.Order) (*pb.Payment, error) {
+func (h *grpcHandler) CreatePayment(ctx context.Context, order *pb.Order) (string, error) {
 	fmt.Println("Order received!")
 	return h.service.CreatePayment(ctx, order)
 }

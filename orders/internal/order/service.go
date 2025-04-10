@@ -37,7 +37,7 @@ func (s *service) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (
 			ID:       item.ID,
 			Name:     "testeritem",
 			Quantity: item.Quantity,
-			PriceID:  "rando",
+			PriceID:  "prod_S5sRbXrdUHcRfd",
 		}
 	}
 
@@ -51,7 +51,6 @@ func (s *service) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (
 	fmt.Printf("creating order at order service: %+v\n", order)
 
 	// publish created order via rabbitmq
-
 	marshalledOrder, err := json.Marshal(order)
 
 	if err != nil {

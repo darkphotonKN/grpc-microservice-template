@@ -20,9 +20,9 @@ var (
 	serviceName  = "orders"
 	grpcAddr     = commonenv.EnvString("GRPC_ORDER_ADDR", "2221")
 	amqpUser     = commonenv.EnvString("RABBITMQ_USER", "guest")
-	amqpPassword = commonenv.EnvString("RABBITMQ_USER", "guest")
-	amqpHost     = commonenv.EnvString("RABBITMQ_USER", "localhost")
-	amqpPort     = commonenv.EnvString("RABBITMQ_USER", "5672")
+	amqpPassword = commonenv.EnvString("RABBITMQ_PASS", "guest")
+	amqpHost     = commonenv.EnvString("RABBITMQ_HOST", "localhost")
+	amqpPort     = commonenv.EnvString("RABBITMQ_PORT", "5672")
 	consulAddr   = commonenv.EnvString("CONSUL_ADDR", "localhost:8500")
 )
 

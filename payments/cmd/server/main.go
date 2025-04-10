@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"microservice-template/common/broker"
 	"microservice-template/common/discovery"
@@ -13,7 +14,7 @@ import (
 	"time"
 
 	_ "github.com/joho/godotenv/autoload" // package that loads env
-	"github.com/stripe/stripe-go"
+	"github.com/stripe/stripe-go/v78"
 	"google.golang.org/grpc"
 )
 
@@ -21,9 +22,9 @@ var (
 	serviceName  = "payment"
 	grpcAddr     = commonenv.EnvString("GRPC_ORDER_ADDR", "2222")
 	amqpUser     = commonenv.EnvString("RABBITMQ_USER", "guest")
-	amqpPassword = commonenv.EnvString("RABBITMQ_USER", "guest")
-	amqpHost     = commonenv.EnvString("RABBITMQ_USER", "localhost")
-	amqpPort     = commonenv.EnvString("RABBITMQ_USER", "5672")
+	amqpPassword = commonenv.EnvString("RABBITMQ_PASS", "guest")
+	amqpHost     = commonenv.EnvString("RABBITMQ_HOST", "localhost")
+	amqpPort     = commonenv.EnvString("RABBITMQ_PORT", "5672")
 	consulAddr   = commonenv.EnvString("CONSUL_ADDR", "localhost:8500")
 	stripeKey    = commonenv.EnvString("STRIPE_KEY", "testkey")
 )
@@ -57,6 +58,9 @@ func main() {
 
 	// -- stripe --
 	stripe.Key = stripeKey
+
+	fmt.Println("stripekey:", stripeKey)
+	fmt.Println("stripe.Key:", stripe.Key)
 
 	processor := stripeProcessor.NewStripeProcessor()
 
