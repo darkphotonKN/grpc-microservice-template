@@ -36,9 +36,6 @@ func (s *stripeProcessor) CreatePaymentLink(o *pb.Order) (string, error) {
 		})
 	}
 
-	// TODO: remove after debugging:
-	fmt.Println("Stripe key before creating payment link:", stripe.Key)
-
 	params := &stripe.CheckoutSessionParams{
 		LineItems:  items,
 		Mode:       stripe.String(string(stripe.CheckoutSessionModePayment)),

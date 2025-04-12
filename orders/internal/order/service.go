@@ -37,7 +37,7 @@ func (s *service) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (
 			ID:       item.ID,
 			Name:     "testeritem",
 			Quantity: item.Quantity,
-			PriceID:  "prod_S5sRbXrdUHcRfd",
+			PriceID:  "price_1RBggxIl3wC7xA9ZojS9Vo8v",
 		}
 	}
 
