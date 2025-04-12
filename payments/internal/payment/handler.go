@@ -8,7 +8,7 @@ import (
 
 type grpcHandler struct {
 	// TODO: update to payment
-	pb.UnimplementedPaymentServiceServer
+	pb.UnimplementedOrderServiceServer
 	service PaymentService
 }
 

@@ -1,6 +1,7 @@
 package notification
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -29,7 +30,7 @@ func (c *consumer) Listen() {
 
 	// --- Order Created Event ---
 	// -- queue --
-	queue, err := c.publishChan.QueueDeclare(broker.OrderCreatedEvent, true, false, false, nil)
+	queue, err := c.publishChan.QueueDeclare(broker.OrderCreatedEvent, true, false, false, false, nil)
 
 	if err != nil {
 		log.Fatal(err)
@@ -53,15 +54,15 @@ func (c *consumer) Listen() {
 				continue
 			}
 
-			paymentRes, err := c.service.CreatePayment(context.Background(), order)
+			err = c.service.SendMessage(context.Background(), fmt.Sprintf("Order with CustomerID %s was sent.", order.CustomerID))
 
 			if err != nil {
-				fmt.Printf("Error when creating payment: %s\n", err)
+				fmt.Printf("Error when sending notification.: %s\n", err)
 				continue
 			}
 
-			fmt.Printf("\nunmarshalled result: %+v\n\n", order)
-			fmt.Println("Create payment result:", paymentRes)
 		}
 	}()
+
+	<-forever
 }
