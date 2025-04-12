@@ -16,9 +16,9 @@ type service struct {
 	ch *amqp.Channel
 }
 
-func NewService(payementProcessor processor.PaymentProcessor) *service {
+func NewService(paymentProcessor processor.PaymentProcessor) *service {
 	return &service{
-		paymentProcessor: payementProcessor,
+		paymentProcessor: paymentProcessor,
 	}
 }
 
