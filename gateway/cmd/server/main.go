@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
 	"time"
 
 	"microservice-template/common/discovery"
@@ -13,6 +12,8 @@ import (
 	"microservice-template/gateway/internal/gateway"
 	"microservice-template/gateway/internal/order"
 
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload" // package that loads env
 )
 
@@ -60,16 +61,32 @@ func main() {
 	}
 
 	// --- routes ---
-	mux := http.NewServeMux()
+
+	router := gin.Default()
+
+	// NOTE: debugging middleware
+	router.Use(func(c *gin.Context) {
+		fmt.Println("Incoming request to:", c.Request.Method, c.Request.URL.Path, "from", c.Request.Host)
+		c.Next()
+	})
+
+	// TODO: CORS for development, remove in PROD
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PATCH", "OPTIONS"},
+		AllowHeaders:     []string{"Content-Type", "Authorization"},
+		AllowCredentials: true,
+	}))
 
 	// -- interface requests to FE client via HTTP --
-	mux.HandleFunc("POST /api/customers/{customerID}/orders", handler.HandleCreateOrder)
+	router.POST("/api/customers/:customerID/orders", handler.HandleCreateOrder)
+	// mux.HandleFunc("POST /api/customers/{customerID}/orders", handler.HandleCreateOrder)
 
 	// --- server initialization ---
 	log.Printf("Server started on port %s", httpAddr)
 
 	// -- start server and capture errors --
-	if err := http.ListenAndServe(":"+httpAddr, mux); err != nil {
+	if err := router.Run(":" + httpAddr); err != nil {
 		log.Fatal("Failed to start server")
 	}
 }

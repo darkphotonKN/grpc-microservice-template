@@ -1,12 +1,12 @@
 package order
 
 import (
-	"encoding/json"
 	"fmt"
 	pb "microservice-template/common/api"
 	"microservice-template/gateway/internal/gateway"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -22,23 +22,21 @@ func NewHandler(gateway gateway.OrdersGateway) *Handler {
 	}
 }
 
-func (h *Handler) HandleCreateOrder(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) HandleCreateOrder(c *gin.Context) {
 	fmt.Println("Creating Order")
 
 	var items []*pb.ItemsWithQuantity
-	err := json.NewDecoder(r.Body).Decode(&items)
 
-	if err != nil {
+	if err := c.ShouldBindJSON(&items); err != nil {
+
 		fmt.Println("Error when creating order:", err.Error())
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-		return
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	customerID := r.PathValue("customerID")
+	customerID := c.Param("customerID")
 
 	// call order service
-	order, err := h.gateway.CreateOrder(r.Context(), &pb.CreateOrderRequest{
+	order, err := h.gateway.CreateOrder(c.Request.Context(), &pb.CreateOrderRequest{
 		CustomerID: customerID,
 		Items:      items,
 	})
@@ -49,18 +47,14 @@ func (h *Handler) HandleCreateOrder(w http.ResponseWriter, r *http.Request) {
 	if errStatus != nil {
 		// matching for invalid argument with grpc's codes helper
 		if errStatus.Code() != codes.InvalidArgument {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Error when attempting to create an order: " + err.Error()))
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Error when attempting to create an order:" + err.Error()})
 			return
 		}
 
 		// other error codes
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Error when attempting to create an order: " + err.Error()))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error when attempting to create an order: " + err.Error()})
 	}
 
 	fmt.Printf("Successfully created order %+v", order)
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(order)
+	c.JSON(http.StatusOK, gin.H{"result": order})
 }

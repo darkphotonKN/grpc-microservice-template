@@ -16,7 +16,7 @@ type PaymentServiceTestSuite struct {
 	service   *service
 }
 
-// setup fields with respective fields
+// setup fields with respective fields - method name fixed
 func (s *PaymentServiceTestSuite) SetupTest() {
 	newInMemProcessor := inmem.NewInMemProcessor()
 	s.processor = newInMemProcessor.(*inmem.InMemProcessor)
