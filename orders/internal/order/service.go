@@ -57,18 +57,25 @@ func (s *service) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (
 		return nil, err
 	}
 
-	queue, err := s.publishCh.QueueDeclare(broker.OrderCreatedEvent, true, false, false, false, nil)
+	// removed to publish to exchange instead of a queue, so multiple queues can consume the messages
+	// queue, err := s.publishCh.QueueDeclare(broker.OrderCreatedEvent, true, false, false, false, nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	s.publishCh.PublishWithContext(ctx, "", queue.Name, false, false, amqp.Publishing{
-		ContentType: "application/json",
-		Body:        marshalledOrder,
-		// persist message
-		DeliveryMode: amqp.Persistent,
-	})
+	s.publishCh.PublishWithContext(
+		ctx,
+		broker.OrderCreatedEvent,
+		"",
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        marshalledOrder,
+			// persist message
+			DeliveryMode: amqp.Persistent,
+		})
 
 	return order, nil
 }

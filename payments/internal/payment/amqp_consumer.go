@@ -29,7 +29,20 @@ func NewConsumer(service PaymentService, publishChan *amqp.Channel) *consumer {
 * Starts a listen for messages over rabbitmq for orders created.
 **/
 func (c *consumer) Listen() {
-	queue, err := c.publishChan.QueueDeclare(broker.OrderCreatedEvent, true, false, false, false, nil)
+	queueName := fmt.Sprintf("payment.%s", broker.OrderCreatedEvent)
+	queue, err := c.publishChan.QueueDeclare(queueName, true, false, false, false, nil)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = c.publishChan.QueueBind(
+		queue.Name,
+		"",
+		broker.OrderCreatedEvent,
+		false,
+		nil,
+	)
 
 	if err != nil {
 		log.Fatal(err)

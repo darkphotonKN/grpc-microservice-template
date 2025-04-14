@@ -24,7 +24,7 @@ func (s *service) SendMessage(ctx context.Context, message string) error {
 		Content: message,
 	}
 
-	fmt.Printf("\nSend Message:\n%+v\n\n", fmtedMsg)
+	fmt.Printf("\nSending Message:\n%+v\n\n", fmtedMsg)
 
 	return nil
 }
