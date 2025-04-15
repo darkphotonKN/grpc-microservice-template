@@ -1,4 +1,5 @@
 syntax = "proto3";
+import "google/protobuf/empty.proto";
 
 option go_package = "microservice-template/common";
 
@@ -12,8 +13,13 @@ message Order {
   repeated Item Items = 4;
 }
 
+message Orders {
+  repeated Order orders = 1;
+}
+
 service OrderService {
   rpc CreateOrder(CreateOrderRequest) returns (Order);
+  rpc GetOrders(google.protobuf.Empty) returns (Orders);
 }
 
 message Item {

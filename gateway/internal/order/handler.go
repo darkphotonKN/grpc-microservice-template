@@ -22,12 +22,29 @@ func NewHandler(gateway gateway.OrdersGateway) *Handler {
 	}
 }
 
-func (h *Handler) HandleGetORder(c *gin.Context) {
+func (h *Handler) HandleGetOrders(c *gin.Context) {
+	orders, err := h.gateway.GetOrders(c.Request.Context())
+
+	// handle errors from GRPC, using grpc's status convert helper
+	errStatus := status.Convert(err)
+
+	if errStatus != nil {
+		// matching for invalid argument with grpc's codes helper
+		if errStatus.Code() != codes.InvalidArgument {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Error when attempting to get orders:" + err.Error()})
+			return
+		}
+
+		// other error codes
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error when attempting to get orders: " + err.Error()})
+	}
+
+	fmt.Printf("Successfully retrieved orders %+v", orders)
+	c.JSON(http.StatusOK, gin.H{"result": orders})
+
 }
 
 func (h *Handler) HandleCreateOrder(c *gin.Context) {
-	fmt.Println("Creating Order")
-
 	var items []*pb.ItemsWithQuantity
 
 	if err := c.ShouldBindJSON(&items); err != nil {

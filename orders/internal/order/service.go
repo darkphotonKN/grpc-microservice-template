@@ -23,6 +23,10 @@ func NewService(repo OrderRepository, publishCh *amqp.Channel) OrderService {
 	}
 }
 
+func (s *service) GetOrders(ctx context.Context) ([]*pb.Order, error) {
+	return nil, nil
+}
+
 func (s *service) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.Order, error) {
 	err := s.ValidateOrder(ctx, req)
 

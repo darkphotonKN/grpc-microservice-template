@@ -22,3 +22,7 @@ func (h *grpcHandler) CreateOrder(ctx context.Context, req *pb.CreateOrderReques
 
 	return h.service.CreateOrder(ctx, req)
 }
+
+func (h *grpcHandler) GetOrders(ctx context.Context) (*pb.Orders, error) {
+	return h.service.GetOrders(ctx)
+}

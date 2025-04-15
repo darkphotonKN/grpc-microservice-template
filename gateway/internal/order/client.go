@@ -49,3 +49,7 @@ func NewClient(addr string) (*Client, error) {
 func (c *Client) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.Order, error) {
 	return c.client.CreateOrder(ctx, req)
 }
+
+func (c *Client) GetOrders(ctx context.Context) (*pb.Orders, error) {
+	return c.client.GetOrders(ctx)
+}
