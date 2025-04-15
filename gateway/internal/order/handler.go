@@ -22,6 +22,9 @@ func NewHandler(gateway gateway.OrdersGateway) *Handler {
 	}
 }
 
+func (h *Handler) HandleGetORder(c *gin.Context) {
+}
+
 func (h *Handler) HandleCreateOrder(c *gin.Context) {
 	fmt.Println("Creating Order")
 
