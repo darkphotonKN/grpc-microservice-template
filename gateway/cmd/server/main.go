@@ -78,9 +78,11 @@ func main() {
 		AllowCredentials: true,
 	}))
 
+	baseRoutes := router.Group("/api")
+
 	// -- interface requests to FE client via HTTP --
-	router.POST("/api/customers/:customerID/orders", handler.HandleCreateOrder)
-	// mux.HandleFunc("POST /api/customers/{customerID}/orders", handler.HandleCreateOrder)
+	baseRoutes.GET("/customers/orders", handler.HandleGetOrders)
+	baseRoutes.POST("/customers/:customerID/orders", handler.HandleCreateOrder)
 
 	// --- server initialization ---
 	log.Printf("Server started on port %s", httpAddr)

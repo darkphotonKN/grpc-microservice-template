@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	pb "microservice-template/common/api"
+
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type grpcHandler struct {
@@ -23,6 +25,7 @@ func (h *grpcHandler) CreateOrder(ctx context.Context, req *pb.CreateOrderReques
 	return h.service.CreateOrder(ctx, req)
 }
 
-func (h *grpcHandler) GetOrders(ctx context.Context) (*pb.Orders, error) {
-	return h.service.GetOrders(ctx)
+func (h *grpcHandler) GetOrders(ctx context.Context, empty *emptypb.Empty) (*pb.Orders, error) {
+	//
+	return h.service.GetOrders(ctx, &emptypb.Empty{})
 }

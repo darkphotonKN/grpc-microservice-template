@@ -3,11 +3,13 @@ package order
 import (
 	"context"
 	pb "microservice-template/common/api"
+
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type OrderService interface {
 	CreateOrder(context.Context, *pb.CreateOrderRequest) (*pb.Order, error)
-	GetOrders(context.Context) (*pb.Orders, error)
+	GetOrders(context.Context, *emptypb.Empty) (*pb.Orders, error)
 	ValidateOrder(context.Context, *pb.CreateOrderRequest) error
 }
 

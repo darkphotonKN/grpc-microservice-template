@@ -39,7 +39,8 @@ func (h *Handler) HandleGetOrders(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error when attempting to get orders: " + err.Error()})
 	}
 
-	fmt.Printf("Successfully retrieved orders %+v", orders)
+	fmt.Printf("Successfully retrieved orders %+v\n", orders)
+
 	c.JSON(http.StatusOK, gin.H{"result": orders})
 
 }

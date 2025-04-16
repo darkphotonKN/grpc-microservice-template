@@ -9,6 +9,7 @@ import (
 	commonerrors "microservice-template/common/errors"
 
 	amqp "github.com/rabbitmq/amqp091-go"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type service struct {
@@ -23,7 +24,8 @@ func NewService(repo OrderRepository, publishCh *amqp.Channel) OrderService {
 	}
 }
 
-func (s *service) GetOrders(ctx context.Context) ([]*pb.Order, error) {
+func (s *service) GetOrders(ctx context.Context, pb *emptypb.Empty) (*pb.Orders, error) {
+	fmt.Println("Getting orders!")
 	return nil, nil
 }
 
