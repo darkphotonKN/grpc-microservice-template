@@ -26,6 +26,6 @@ func (h *grpcHandler) CreateOrder(ctx context.Context, req *pb.CreateOrderReques
 }
 
 func (h *grpcHandler) GetOrders(ctx context.Context, empty *emptypb.Empty) (*pb.Orders, error) {
-	//
-	return h.service.GetOrders(ctx, &emptypb.Empty{})
+
+	return h.service.GetOrders(ctx, empty)
 }

@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: microservice_template_orders_db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: microservice_template_orders_db
+    ports:
+      - "5221:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

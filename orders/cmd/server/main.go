@@ -8,6 +8,7 @@ import (
 	"microservice-template/common/discovery"
 	"microservice-template/common/discovery/consul"
 	commonenv "microservice-template/common/env"
+	"microservice-template/orders/internal/config"
 	"microservice-template/orders/internal/order"
 	"net"
 	"time"
@@ -27,6 +28,13 @@ var (
 )
 
 func main() {
+	// --- database setup ---
+	db, err := config.SetupDB()
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer db.Close()
+
 	// --- service discovery ---
 
 	// -- setup --

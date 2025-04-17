@@ -3,11 +3,10 @@ package gateway
 import (
 	"context"
 	"fmt"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"log"
 	pb "microservice-template/common/api"
 	"microservice-template/common/discovery"
-
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 const (

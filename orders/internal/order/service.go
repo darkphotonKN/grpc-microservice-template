@@ -63,9 +63,6 @@ func (s *service) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (
 		return nil, err
 	}
 
-	// removed to publish to exchange instead of a queue, so multiple queues can consume the messages
-	// queue, err := s.publishCh.QueueDeclare(broker.OrderCreatedEvent, true, false, false, false, nil)
-
 	if err != nil {
 		return nil, err
 	}
