@@ -9,18 +9,29 @@ import (
 )
 
 type OrderService interface {
-	CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.Order, error)
+	CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) error
 	GetOrders(ctx context.Context, empty *emptypb.Empty) (*pb.Orders, error)
 	ValidateOrder(ctx context.Context, req *pb.CreateOrderRequest) error
 }
 
 type OrderRepository interface {
-	Create(ctx context.Context) error
-	Get(ctx context.Context, id, customerId string) (*pb.Order, error)
+	CreateOrder(ctx context.Context, order Order) (uuid.UUID, error)
+	CreateOrderItem(ctx context.Context, item OrderItem) error
+	GetAll(ctx context.Context) ([]*pb.Order, error)
 }
 
 // Entity
 
 type Order struct {
-	ID uuid.UUID `json:"id" db:"id"`
+	ID         uuid.UUID `json:"id" db:"id"`
+	CustomerID string    `json:"customer_id" db:"customer_id"`
+	Status     int       `json:"status" db:"status"`
+}
+
+type OrderItem struct {
+	ID       uuid.UUID `json:"id" db:"id"`
+	OrderID  uuid.UUID `json:"order_id" db:"order_id"`
+	Name     string    `json:"name" db:"name"`
+	Quantity int       `json:"quantity" db:"quantity"`
+	PriceID  string    `json:"price_id" db:"price_id"`
 }

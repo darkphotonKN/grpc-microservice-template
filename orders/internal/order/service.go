@@ -41,7 +41,7 @@ func (s *service) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (
 	for index, item := range req.Items {
 		items[index] = &pb.Item{
 			ID:       item.ID,
-			Name:     "testeritem",
+			Name:     "testeritem" + string(index+1),
 			Quantity: item.Quantity,
 			PriceID:  "price_1RBggxIl3wC7xA9ZojS9Vo8v",
 		}
@@ -50,8 +50,24 @@ func (s *service) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (
 	order := &pb.Order{
 		ID:         "1",
 		CustomerID: req.CustomerID,
-		Status:     "initiated",
 		Items:      items,
+	}
+
+	// create order and order items with transaction to retain atomicitiy
+
+	// create base order
+	orderID, err := s.repo.CreateOrder(ctx, Order{
+		CustomerID: order.CustomerID,
+	})
+
+	// create each order item under the order
+	for _, item := range order.Items {
+		s.repo.CreateOrderItem(ctx, OrderItem{
+			OrderID:  orderID,
+			Name:     item.Name,
+			Quantity: int(item.Quantity),
+			PriceID:  item.PriceID,
+		})
 	}
 
 	fmt.Printf("creating order at order service: %+v\n", order)

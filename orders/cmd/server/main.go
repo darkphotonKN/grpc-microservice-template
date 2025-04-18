@@ -82,7 +82,7 @@ func main() {
 	defer l.Close()
 
 	// service setup
-	repo := order.NewRepository()
+	repo := order.NewRepository(db)
 	service := order.NewService(repo, ch)
 
 	// start grpc server
