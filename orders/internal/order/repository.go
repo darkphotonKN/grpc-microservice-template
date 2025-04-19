@@ -10,12 +10,12 @@ import (
 )
 
 type repository struct {
-	db *sqlx.DB
+	DB *sqlx.DB
 }
 
 func NewRepository(db *sqlx.DB) OrderRepository {
 	return &repository{
-		db: db,
+		DB: db,
 	}
 }
 
@@ -26,12 +26,42 @@ func (s *repository) CreateOrder(ctx context.Context, order Order) (uuid.UUID, e
 	RETURNING id
 	`
 
-	rows, err := s.db.NamedQueryContext(ctx, query, order)
-	defer rows.Close()
+	rows, err := s.DB.NamedQueryContext(ctx, query, order)
 
 	if err != nil {
 		return uuid.Nil, err
 	}
+
+	defer rows.Close()
+
+	var id uuid.UUID
+	if rows.Next() {
+		err = rows.Scan(&id)
+		if err != nil {
+			return uuid.Nil, err
+		}
+	}
+
+	fmt.Printf("Successfully created order with id: %s\n", id)
+
+	return id, nil
+}
+
+// transaction version
+func (s *repository) CreateOrderTx(ctx context.Context, tx *sqlx.Tx, order Order) (uuid.UUID, error) {
+	query := `
+	INSERT INTO orders (customer_id, status)
+	VALUES(:customer_id, :status)
+	RETURNING id
+	`
+
+	rows, err := tx.NamedQuery(query, order)
+
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	defer rows.Close()
 
 	var id uuid.UUID
 	if rows.Next() {
@@ -48,11 +78,28 @@ func (s *repository) CreateOrder(ctx context.Context, order Order) (uuid.UUID, e
 
 func (s *repository) CreateOrderItem(ctx context.Context, item OrderItem) error {
 	query := `
-	INSERT INTO order_items 
+	INSERT INTO order_items(order_id, name, quantity, price_id)
 	VALUES(:order_id, :name, :quantity, :price_id)
 	`
 
-	_, err := s.db.NamedExec(query, item)
+	_, err := s.DB.NamedExec(query, item)
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Successfully created order item.")
+	return nil
+}
+
+// transaction version
+func (s *repository) CreateOrderItemTx(ctx context.Context, tx *sqlx.Tx, item OrderItem) error {
+	query := `
+	INSERT INTO order_items(order_id, name, quantity, price_id)
+	VALUES(:order_id, :name, :quantity, :price_id)
+	`
+
+	_, err := tx.NamedExec(query, item)
 
 	if err != nil {
 		return err
@@ -78,7 +125,7 @@ func (s *repository) GetAll(ctx context.Context) ([]*pb.Order, error) {
 	FROM orders
 	`
 
-	err := s.db.Select(&orders, query)
+	err := s.DB.Select(&orders, query)
 
 	if err != nil {
 		return nil, err

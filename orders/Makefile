@@ -9,32 +9,40 @@ DB_PASSWORD ?= password
 DB_NAME ?= microservice_template_orders_db
 MIGRATE_COMMAND = migrate -path $(MIGRATIONS_PATH) -database "postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable"
 
-# Run all pending migrations
+# run all pending migrations
 migrate-up:
 	$(MIGRATE_COMMAND) up
 
-# Run a specific number of migrations
+# run a specific number of migrations
 migrate-up-one:
 	$(MIGRATE_COMMAND) up 1
 
-# Rollback all migrations
+# rollback all migrations
 migrate-down:
 	$(MIGRATE_COMMAND) down
 
-# Rollback a specific number of migrations
+# rollback a specific number of migrations
 migrate-down-one:
 	$(MIGRATE_COMMAND) down 1
 
-# Create a new migration file
+# create a new migration file
 migrate-create:
 	@read -p "Enter migration name: " name; \
 	migrate create -ext sql -dir $(MIGRATIONS_PATH) -seq $${name}
 
-# Force set migration version
+# force set migration version
 migrate-force:
 	@read -p "Enter version to force: " version; \
 	$(MIGRATE_COMMAND) force $${version}
 
-# Show current migration version
+# show current migration version
 migrate-version:
 	$(MIGRATE_COMMAND) version
+
+# WARN: development/testing only - dangerous for production!
+migrate-reset:
+	PGPASSWORD=$(DB_PASSWORD) dropdb --host=$(DB_HOST) --port=$(DB_PORT) --username=$(DB_USER) $(DB_NAME) --if-exists
+	PGPASSWORD=$(DB_PASSWORD) createdb --host=$(DB_HOST) --port=$(DB_PORT) --username=$(DB_USER) $(DB_NAME)	
+	$(MIGRATE_COMMAND) up
+
+

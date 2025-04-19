@@ -5,18 +5,21 @@ import (
 	pb "microservice-template/common/api"
 
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type OrderService interface {
-	CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) error
+	CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.Order, error)
 	GetOrders(ctx context.Context, empty *emptypb.Empty) (*pb.Orders, error)
 	ValidateOrder(ctx context.Context, req *pb.CreateOrderRequest) error
 }
 
 type OrderRepository interface {
 	CreateOrder(ctx context.Context, order Order) (uuid.UUID, error)
+	CreateOrderTx(ctx context.Context, tx *sqlx.Tx, order Order) (uuid.UUID, error)
 	CreateOrderItem(ctx context.Context, item OrderItem) error
+	CreateOrderItemTx(ctx context.Context, tx *sqlx.Tx, item OrderItem) error
 	GetAll(ctx context.Context) ([]*pb.Order, error)
 }
 

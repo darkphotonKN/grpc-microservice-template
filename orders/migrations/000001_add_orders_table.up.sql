@@ -1,5 +1,5 @@
 CREATE TABLE orders (
-  id VARCHAR(36) PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   customer_id VARCHAR(255) NOT NULL,
   status INT NOT NULL DEFAULT 0
 );

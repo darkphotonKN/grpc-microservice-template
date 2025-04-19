@@ -1,6 +1,6 @@
 CREATE TABLE order_items (
-  id VARCHAR(36) PRIMARY KEY,
-  order_id VARCHAR(36) NOT NULL,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id UUID NOT NULL,
   name VARCHAR(255) NOT NULL,
   quantity INT NOT NULL,
   price_id VARCHAR(255) NOT NULL,
