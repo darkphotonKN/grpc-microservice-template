@@ -14,6 +14,10 @@ message Order {
   repeated Item Items = 4;
 }
 
+message OrderId {
+  string ID = 1;
+}
+
 message Orders {
   repeated Order orders = 1;
 }

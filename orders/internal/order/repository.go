@@ -55,6 +55,7 @@ func (s *repository) CreateOrderTx(ctx context.Context, tx *sqlx.Tx, order Order
 	RETURNING id
 	`
 
+	// NOTE: sqlx missing NamedQueryContext method
 	rows, err := tx.NamedQuery(query, order)
 
 	if err != nil {

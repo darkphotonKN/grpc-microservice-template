@@ -10,6 +10,7 @@ import (
 	commonhelpers "microservice-template/common/helpers"
 	"strconv"
 
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -59,12 +60,13 @@ func (s *service) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (
 	}
 
 	// create order and order items with transaction to retain atomicitiy
+	var orderID uuid.UUID
 	db := (s.repo).(*repository).DB
 
 	err = commonhelpers.ExecTx(db, func(tx *sqlx.Tx) error {
 
 		// create base order
-		orderID, err := s.repo.CreateOrderTx(ctx, tx, Order{
+		orderID, err = s.repo.CreateOrderTx(ctx, tx, Order{
 			CustomerID: order.CustomerID,
 		})
 
@@ -102,16 +104,14 @@ func (s *service) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (
 	}
 
 	// publish created order via rabbitmq
+	order.ID = orderID.String() // update id based on the created id
 	marshalledOrder, err := json.Marshal(order)
 
 	if err != nil {
 		return nil, err
 	}
 
-	if err != nil {
-		return nil, err
-	}
-
+	// publish event to message broker
 	s.publishCh.PublishWithContext(
 		ctx,
 		broker.OrderCreatedEvent,
