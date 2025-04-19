@@ -126,8 +126,6 @@ func (s *service) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (
 		})
 
 	return order, nil
-
-	return nil, fmt.Errorf("Unknown error occurred when creating orders.")
 }
 
 func (s *service) ValidateOrder(ctx context.Context, req *pb.CreateOrderRequest) error {
