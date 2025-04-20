@@ -2,8 +2,11 @@ package order
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	pb "microservice-template/common/api"
+	commonerrors "microservice-template/common/errors"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -17,6 +20,36 @@ func NewRepository(db *sqlx.DB) OrderRepository {
 	return &repository{
 		DB: db,
 	}
+}
+
+func (s *repository) GetOrder(ctx context.Context, orderId *pb.OrderId) (*Order, error) {
+	var order Order
+
+	query := `
+	SELECT 
+		status
+	FROM orders
+	WHERE id = $1
+	`
+
+	err := s.DB.Get(&order, query, orderId.ID)
+
+	if err != nil {
+		// no orders found
+		if errors.Is(err, sql.ErrNoRows) {
+			fmt.Println("No orders found.")
+			return nil, commonerrors.ErrNoItemFound
+		}
+
+		fmt.Println("General Error when getting order of id %s, error: %s", orderId.ID, err)
+
+		// general error
+		return nil, err
+	}
+
+	fmt.Printf("Got order when querying for status %+v\n", order)
+
+	return &order, nil
 }
 
 func (s *repository) CreateOrder(ctx context.Context, order Order) (uuid.UUID, error) {

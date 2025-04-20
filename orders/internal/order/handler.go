@@ -30,7 +30,7 @@ func (h *grpcHandler) GetOrders(ctx context.Context, empty *emptypb.Empty) (*pb.
 	return h.service.GetOrders(ctx, empty)
 }
 
-func (h *grpcHandler) GetOrderStatus(ctx context.Context, req *pb.OrderId) (OrderStatus, error) {
+func (h *grpcHandler) GetOrderStatus(ctx context.Context, req *pb.OrderId) (*pb.OrderStatus, error) {
 
 	return h.service.GetOrderStatus(ctx, req)
 }

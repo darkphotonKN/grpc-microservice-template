@@ -54,3 +54,7 @@ func (c *Client) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*
 func (c *Client) GetOrders(ctx context.Context) (*pb.Orders, error) {
 	return c.client.GetOrders(ctx, &emptypb.Empty{})
 }
+
+func (c *Client) GetOrderStatus(ctx context.Context, orderId *pb.OrderId) (*pb.OrderStatus, error) {
+	return c.client.GetOrderStatus(ctx, orderId)
+}

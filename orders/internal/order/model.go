@@ -12,7 +12,7 @@ import (
 type OrderService interface {
 	CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.Order, error)
 	GetOrders(ctx context.Context, empty *emptypb.Empty) (*pb.Orders, error)
-	GetOrderStatus(ctx context.Context, req *pb.OrderId) (OrderStatus, error)
+	GetOrderStatus(ctx context.Context, req *pb.OrderId) (*pb.OrderStatus, error)
 	ValidateOrder(ctx context.Context, req *pb.CreateOrderRequest) error
 }
 
@@ -21,6 +21,7 @@ type OrderRepository interface {
 	CreateOrderTx(ctx context.Context, tx *sqlx.Tx, order Order) (uuid.UUID, error)
 	CreateOrderItem(ctx context.Context, item OrderItem) error
 	CreateOrderItemTx(ctx context.Context, tx *sqlx.Tx, item OrderItem) error
+	GetOrder(ctx context.Context, req *pb.OrderId) (*Order, error)
 	GetAll(ctx context.Context) ([]*pb.Order, error)
 }
 
@@ -41,9 +42,10 @@ type OrderItem struct {
 }
 
 // Shared Types
-type OrderStatus string
+
+type OrderStatus int
 
 const (
-	pending OrderStatus = "pending"
-	paid    OrderStatus = "paid"
+	pending OrderStatus = 0
+	paid    OrderStatus = 1
 )

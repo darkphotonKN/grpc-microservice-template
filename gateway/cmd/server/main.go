@@ -82,6 +82,7 @@ func main() {
 
 	// -- interface requests to FE client via HTTP --
 	baseRoutes.GET("/customers/orders", handler.HandleGetOrders)
+	baseRoutes.GET("/customers/orders/:id/status", handler.HandleGetOrderStatus)
 	baseRoutes.POST("/customers/:customerID/orders", handler.HandleCreateOrder)
 
 	// --- server initialization ---

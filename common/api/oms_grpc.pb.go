@@ -20,8 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	OrderService_CreateOrder_FullMethodName = "/api.OrderService/CreateOrder"
-	OrderService_GetOrders_FullMethodName   = "/api.OrderService/GetOrders"
+	OrderService_CreateOrder_FullMethodName    = "/api.OrderService/CreateOrder"
+	OrderService_GetOrders_FullMethodName      = "/api.OrderService/GetOrders"
+	OrderService_GetOrderStatus_FullMethodName = "/api.OrderService/GetOrderStatus"
 )
 
 // OrderServiceClient is the client API for OrderService service.
@@ -30,6 +31,7 @@ const (
 type OrderServiceClient interface {
 	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*Order, error)
 	GetOrders(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Orders, error)
+	GetOrderStatus(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*OrderStatus, error)
 }
 
 type orderServiceClient struct {
@@ -60,12 +62,23 @@ func (c *orderServiceClient) GetOrders(ctx context.Context, in *emptypb.Empty, o
 	return out, nil
 }
 
+func (c *orderServiceClient) GetOrderStatus(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*OrderStatus, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OrderStatus)
+	err := c.cc.Invoke(ctx, OrderService_GetOrderStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServiceServer is the server API for OrderService service.
 // All implementations must embed UnimplementedOrderServiceServer
 // for forward compatibility.
 type OrderServiceServer interface {
 	CreateOrder(context.Context, *CreateOrderRequest) (*Order, error)
 	GetOrders(context.Context, *emptypb.Empty) (*Orders, error)
+	GetOrderStatus(context.Context, *OrderId) (*OrderStatus, error)
 	mustEmbedUnimplementedOrderServiceServer()
 }
 
@@ -81,6 +94,9 @@ func (UnimplementedOrderServiceServer) CreateOrder(context.Context, *CreateOrder
 }
 func (UnimplementedOrderServiceServer) GetOrders(context.Context, *emptypb.Empty) (*Orders, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrders not implemented")
+}
+func (UnimplementedOrderServiceServer) GetOrderStatus(context.Context, *OrderId) (*OrderStatus, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOrderStatus not implemented")
 }
 func (UnimplementedOrderServiceServer) mustEmbedUnimplementedOrderServiceServer() {}
 func (UnimplementedOrderServiceServer) testEmbeddedByValue()                      {}
@@ -139,6 +155,24 @@ func _OrderService_GetOrders_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrderService_GetOrderStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OrderId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).GetOrderStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrderService_GetOrderStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).GetOrderStatus(ctx, req.(*OrderId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OrderService_ServiceDesc is the grpc.ServiceDesc for OrderService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -153,6 +187,10 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetOrders",
 			Handler:    _OrderService_GetOrders_Handler,
+		},
+		{
+			MethodName: "GetOrderStatus",
+			Handler:    _OrderService_GetOrderStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

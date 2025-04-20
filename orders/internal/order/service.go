@@ -28,6 +28,31 @@ func NewService(repo OrderRepository, publishCh *amqp.Channel) OrderService {
 	}
 }
 
+func (s *service) GetOrderStatus(ctx context.Context, req *pb.OrderId) (*pb.OrderStatus, error) {
+	order, err := s.repo.GetOrder(ctx, req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("\nOrder retrieved: \n%+v\n\n", order)
+
+	switch OrderStatus(order.Status) {
+	case pending:
+		statusText := "pending"
+		return &pb.OrderStatus{
+			Status: statusText,
+		}, nil
+	case paid:
+		statusText := "paid"
+		return &pb.OrderStatus{
+			Status: statusText}, nil
+	default:
+		return nil, fmt.Errorf("Unknown order status: %d", order.Status)
+	}
+
+}
+
 func (s *service) GetOrders(ctx context.Context, pb *emptypb.Empty) (*pb.Orders, error) {
 	fmt.Println("Getting orders!")
 	return nil, nil
