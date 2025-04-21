@@ -2,6 +2,7 @@ package payment
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -13,7 +14,7 @@ type handler struct {
 	service PaymentService
 }
 
-func NewPaymentHandler(service PaymentService) PaymentHandler {
+func NewHandler(service PaymentService) PaymentHandler {
 	return &handler{
 		service: service,
 	}
@@ -30,23 +31,25 @@ func (h *handler) HandleStripeWebhook(c *gin.Context) {
 	stripeSignature := c.GetHeader("Stripe-Signature")
 
 	// verification
-	stripeWebhookSecret := service(h.service).StripeWebhookSecret
+	stripeWebhookSecret := h.service.GetWebhookSecret()
 
-	event, err := webhook.ConstructEvent(body, stripeSignature)
+	event, err := webhook.ConstructEvent(body, stripeSignature, stripeWebhookSecret)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Webhook verification failed." + err.Error()})
 		return
 	}
 
 	switch event.Type {
+	// succesfully completed payment
 	case "checkout.session.completed":
-		// Handle successful payment
+		fmt.Println("a client successfully completed a stripe payment.")
 		var session map[string]interface{}
 		json.Unmarshal(event.Data.Raw, &session)
 
 		// Extract order ID from metadata
 		metadata := session["metadata"].(map[string]interface{})
 		orderID := metadata["order_id"].(string)
+		fmt.Println("orderID:", orderID)
 
 		// Update order status
 		// You'll handle this via gRPC to Order Service

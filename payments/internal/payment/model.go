@@ -13,4 +13,5 @@ type PaymentHandler interface {
 
 type PaymentService interface {
 	CreatePayment(context.Context, *pb.Order) (string, error)
+	GetWebhookSecret() string
 }

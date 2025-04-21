@@ -35,3 +35,7 @@ func (s *service) CreatePayment(ctx context.Context, order *pb.Order) (string, e
 
 	return link, nil
 }
+
+func (s *service) GetWebhookSecret() string {
+	return s.stripeWebhookSecret
+}

@@ -8,12 +8,12 @@ import (
 	"microservice-template/common/discovery"
 	"microservice-template/common/discovery/consul"
 	commonenv "microservice-template/common/env"
-	commonhelpers "microservice-template/common/helpers"
 	"microservice-template/payments/internal/payment"
 	stripeProcessor "microservice-template/payments/processor/stripe"
 	"net"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload" // package that loads env
 	"github.com/stripe/stripe-go/v78"
 	"google.golang.org/grpc"
@@ -22,6 +22,7 @@ import (
 var (
 	serviceName  = "payment"
 	grpcAddr     = commonenv.EnvString("GRPC_ORDER_ADDR", "2222")
+	httpAddr     = commonenv.EnvString("PAYMENT_ADDR", "8070")
 	amqpUser     = commonenv.EnvString("RABBITMQ_USER", "guest")
 	amqpPassword = commonenv.EnvString("RABBITMQ_PASS", "guest")
 	amqpHost     = commonenv.EnvString("RABBITMQ_HOST", "localhost")
@@ -78,11 +79,11 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	paymentService := payment.NewService(processor, stripeWebhookSecret)
-	paymentConsumer := payment.NewConsumer(paymentService, ch)
-	paymentConsumer.Listen() // listen to the channel for messages
-	// paymentHandler := payment.NewGrpcHandler(paymentService)
+	paymentHandler := payment.NewHandler(paymentService)
+	paymentConsumer := payment.NewConsumer(paymentService, ch) // listen through channel from message broker
+	paymentConsumer.Listen()                                   // listen to the channel for messages
 
-	// create a network listener to this service
+	// create a local network listener to this service
 	l, err := net.Listen("tcp", "localhost:"+grpcAddr)
 
 	if err != nil {
@@ -93,7 +94,19 @@ func main() {
 
 	defer l.Close()
 
+	// start a http server for exposing webhook endpoint to stripe
+	router := gin.Default()
+
+	router.GET("/api/payment/webhook", paymentHandler.HandleStripeWebhook)
+
+	// -- start server and capture errors --
+	if err := router.Run(":" + httpAddr); err != nil {
+		log.Fatal("Failed to start server")
+	}
+
+	log.Printf("http payment server started on PORT: %s\n", httpAddr)
 	log.Printf("grpc Order Server started on PORT: %s\n", grpcAddr)
+
 	// start serving requests
 	if err := grpcServer.Serve(l); err != nil {
 		log.Fatal("Can't connect to grpc server. Error:", err.Error())
