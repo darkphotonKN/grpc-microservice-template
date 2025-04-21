@@ -99,13 +99,13 @@ func main() {
 
 	router.GET("/api/payment/webhook", paymentHandler.HandleStripeWebhook)
 
+	log.Printf("http payment server started on PORT: %s\n", httpAddr)
+	log.Printf("grpc Order Server started on PORT: %s\n", grpcAddr)
+
 	// -- start server and capture errors --
 	if err := router.Run(":" + httpAddr); err != nil {
 		log.Fatal("Failed to start server")
 	}
-
-	log.Printf("http payment server started on PORT: %s\n", httpAddr)
-	log.Printf("grpc Order Server started on PORT: %s\n", grpcAddr)
 
 	// start serving requests
 	if err := grpcServer.Serve(l); err != nil {

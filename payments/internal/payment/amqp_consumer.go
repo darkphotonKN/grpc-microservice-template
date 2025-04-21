@@ -7,9 +7,8 @@ import (
 	"log"
 	"microservice-template/common/broker"
 
-	pb "microservice-template/common/api"
-
 	amqp "github.com/rabbitmq/amqp091-go"
+	pb "microservice-template/common/api"
 )
 
 type consumer struct {
@@ -26,7 +25,7 @@ func NewConsumer(service PaymentService, publishChan *amqp.Channel) *consumer {
 }
 
 /**
-* Starts a listen for messages over rabbitmq for orders created.
+* Starts a listen for messages over rabbitmq for newOrders created.
 **/
 func (c *consumer) Listen() {
 	queueName := fmt.Sprintf("payment.%s", broker.OrderCreatedEvent)
@@ -56,24 +55,27 @@ func (c *consumer) Listen() {
 		for msg := range msgs {
 			fmt.Println("received message:", msg)
 
-			var order *pb.Order
+			var newOrder *pb.Order
 
-			err := json.Unmarshal(msg.Body, &order)
+			err := json.Unmarshal(msg.Body, &newOrder)
 
 			if err != nil {
 				fmt.Printf("Error when unmarshalling json: %s\n", err)
 				continue
 			}
 
-			paymentRes, err := c.service.CreatePayment(context.Background(), order)
+			paymentRes, err := c.service.CreatePayment(context.Background(), newOrder)
 
 			if err != nil {
 				fmt.Printf("Error when creating payment: %s\n", err)
 				continue
 			}
 
-			fmt.Printf("\nunmarshalled result: %+v\n\n", order)
+			fmt.Printf("\nunmarshalled result: %+v\n\n", newOrder)
 			fmt.Println("Create payment result:", paymentRes)
+
+			// TODO: remove after testing, once stripe webhook works:
+			// NOTE: just for testing grpc call to update newOrder status
 		}
 	}()
 

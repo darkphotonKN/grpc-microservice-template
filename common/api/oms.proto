@@ -22,6 +22,11 @@ message OrderStatus {
   string status = 1;
 }
 
+message OrderStatusUpdateRequest {
+  string ID = 1;
+  string status = 2;
+}
+
 message Orders {
   repeated Order orders = 1;
 }
@@ -30,6 +35,7 @@ service OrderService {
   rpc CreateOrder(CreateOrderRequest) returns (Order);
   rpc GetOrders(google.protobuf.Empty) returns (Orders);
   rpc GetOrderStatus(OrderId) returns (OrderStatus);
+  rpc UpdateOrderStatus(OrderStatusUpdateRequest) returns (Order);
 }
 
 message Item {

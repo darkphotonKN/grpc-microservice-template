@@ -15,3 +15,7 @@ type PaymentService interface {
 	CreatePayment(context.Context, *pb.Order) (string, error)
 	GetWebhookSecret() string
 }
+
+type OrdersGateway interface {
+	UpdateOrderStatus(ctx context.Context, req *pb.OrderStatusUpdateRequest) (*pb.Order, error)
+}
