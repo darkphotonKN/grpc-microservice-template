@@ -12,13 +12,17 @@ type service struct {
 	// stripe service injection
 	paymentProcessor processor.PaymentProcessor
 
+	// config
+	stripeWebhookSecret string
+
 	// channel for communicating on message broker
 	ch *amqp.Channel
 }
 
-func NewService(paymentProcessor processor.PaymentProcessor) *service {
+func NewService(paymentProcessor processor.PaymentProcessor, stripeWebhookSecret string) *service {
 	return &service{
-		paymentProcessor: paymentProcessor,
+		paymentProcessor:    paymentProcessor,
+		stripeWebhookSecret: stripeWebhookSecret,
 	}
 }
 

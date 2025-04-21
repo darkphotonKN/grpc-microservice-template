@@ -8,6 +8,7 @@ import (
 	"microservice-template/common/discovery"
 	"microservice-template/common/discovery/consul"
 	commonenv "microservice-template/common/env"
+	commonhelpers "microservice-template/common/helpers"
 	"microservice-template/payments/internal/payment"
 	stripeProcessor "microservice-template/payments/processor/stripe"
 	"net"
@@ -73,8 +74,10 @@ func main() {
 	}()
 
 	// --- server initialization ---
+	stripeWebhookSecret := commonenv.EnvString("STRIPE_WEBHOOK_SECRET", "")
+
 	grpcServer := grpc.NewServer()
-	paymentService := payment.NewService(processor)
+	paymentService := payment.NewService(processor, stripeWebhookSecret)
 	paymentConsumer := payment.NewConsumer(paymentService, ch)
 	paymentConsumer.Listen() // listen to the channel for messages
 	// paymentHandler := payment.NewGrpcHandler(paymentService)
