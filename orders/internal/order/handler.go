@@ -34,3 +34,8 @@ func (h *grpcHandler) GetOrderStatus(ctx context.Context, req *pb.OrderId) (*pb.
 
 	return h.service.GetOrderStatus(ctx, req)
 }
+
+func (h *grpcHandler) UpdateOrderStatus(ctx context.Context, req *pb.OrderStatusUpdateRequest) (*pb.Order, error) {
+
+	return h.service.UpdateOrderStatus(ctx, req)
+}

@@ -8,6 +8,7 @@ import (
 	"microservice-template/common/broker"
 	commonerrors "microservice-template/common/errors"
 	commonhelpers "microservice-template/common/helpers"
+	commontypes "microservice-template/common/types"
 	"strconv"
 
 	"github.com/google/uuid"
@@ -37,13 +38,13 @@ func (s *service) GetOrderStatus(ctx context.Context, req *pb.OrderId) (*pb.Orde
 
 	fmt.Printf("\nOrder retrieved: \n%+v\n\n", order)
 
-	switch OrderStatus(order.Status) {
-	case pending:
+	switch commontypes.OrderStatus(order.Status) {
+	case commontypes.Pending:
 		statusText := "pending"
 		return &pb.OrderStatus{
 			Status: statusText,
 		}, nil
-	case paid:
+	case commontypes.Paid:
 		statusText := "paid"
 		return &pb.OrderStatus{
 			Status: statusText}, nil
@@ -159,4 +160,10 @@ func (s *service) ValidateOrder(ctx context.Context, req *pb.CreateOrderRequest)
 	}
 
 	return nil
+}
+
+func (s *service) UpdateOrderStatus(ctx context.Context, req *pb.OrderStatusUpdateRequest) (*pb.Order, error) {
+	fmt.Printf("Recieved update order status: %+v", req)
+
+	return nil, nil
 }

@@ -14,6 +14,7 @@ type OrderService interface {
 	GetOrders(ctx context.Context, empty *emptypb.Empty) (*pb.Orders, error)
 	GetOrderStatus(ctx context.Context, req *pb.OrderId) (*pb.OrderStatus, error)
 	ValidateOrder(ctx context.Context, req *pb.CreateOrderRequest) error
+	UpdateOrderStatus(ctx context.Context, req *pb.OrderStatusUpdateRequest) (*pb.Order, error)
 }
 
 type OrderRepository interface {
@@ -40,12 +41,3 @@ type OrderItem struct {
 	Quantity int       `json:"quantity" db:"quantity"`
 	PriceID  string    `json:"price_id" db:"price_id"`
 }
-
-// Shared Types
-
-type OrderStatus int
-
-const (
-	pending OrderStatus = 0
-	paid    OrderStatus = 1
-)

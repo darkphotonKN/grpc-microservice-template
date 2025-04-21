@@ -3,6 +3,7 @@ package payment
 import (
 	"context"
 	pb "microservice-template/common/api"
+	"microservice-template/payments/internal/order"
 	"microservice-template/payments/processor/inmem"
 	"testing"
 
@@ -21,7 +22,7 @@ func (s *PaymentServiceTestSuite) SetupTest() {
 	newInMemProcessor := inmem.NewInMemProcessor()
 	s.processor = newInMemProcessor.(*inmem.InMemProcessor)
 
-	newPaymentService := NewService(newInMemProcessor)
+	newPaymentService := NewService(newInMemProcessor, "")
 	s.service = newPaymentService
 }
 

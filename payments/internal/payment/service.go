@@ -2,8 +2,12 @@ package payment
 
 import (
 	"context"
+	"fmt"
 	pb "microservice-template/common/api"
+	commontypes "microservice-template/common/types"
+	"microservice-template/payments/internal/order"
 	"microservice-template/payments/processor"
+	"strconv"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -17,17 +21,29 @@ type service struct {
 
 	// channel for communicating on message broker
 	ch *amqp.Channel
+
+	// for communicating with order service via grpc
+	orderClient *order.Client
 }
 
-func NewService(paymentProcessor processor.PaymentProcessor, stripeWebhookSecret string) *service {
+func NewService(paymentProcessor processor.PaymentProcessor, stripeWebhookSecret string, orderClient *order.Client) *service {
 	return &service{
 		paymentProcessor:    paymentProcessor,
 		stripeWebhookSecret: stripeWebhookSecret,
+		orderClient:         orderClient,
 	}
 }
 
 func (s *service) CreatePayment(ctx context.Context, order *pb.Order) (string, error) {
 	link, err := s.paymentProcessor.CreatePaymentLink(order)
+
+	// TODO: remove after testing
+	fmt.Println("firing update order status")
+
+	s.UpdateOrderStatus(ctx, &pb.OrderStatusUpdateRequest{
+		ID:     "b3ca3946-b8ea-4ec2-800b-a1991227c3a5",
+		Status: strconv.Itoa(int(commontypes.Paid)),
+	})
 
 	if err != nil {
 		return "", err
@@ -38,4 +54,8 @@ func (s *service) CreatePayment(ctx context.Context, order *pb.Order) (string, e
 
 func (s *service) GetWebhookSecret() string {
 	return s.stripeWebhookSecret
+}
+
+func (s *service) UpdateOrderStatus(ctx context.Context, req *pb.OrderStatusUpdateRequest) (*pb.Order, error) {
+	return s.orderClient.UpdateOrderStatus(ctx, req)
 }
