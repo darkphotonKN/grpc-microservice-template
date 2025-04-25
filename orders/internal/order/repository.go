@@ -80,6 +80,22 @@ func (s *repository) CreateOrder(ctx context.Context, order Order) (uuid.UUID, e
 	return id, nil
 }
 
+func (s *repository) UpdateOrderStatus(ctx context.Context, req *UpdateOrderStatusReq) error {
+	query := `
+	UPDATE orders 
+	SET 
+		status = COALESCE(:status, status)
+	WHERE id = :id
+	`
+
+	_, err := s.DB.NamedExecContext(ctx, query, req)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // transaction version
 func (s *repository) CreateOrderTx(ctx context.Context, tx *sqlx.Tx, order Order) (uuid.UUID, error) {
 	query := `

@@ -3,6 +3,7 @@ package order
 import (
 	"context"
 	pb "microservice-template/common/api"
+	commontypes "microservice-template/common/types"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -22,6 +23,7 @@ type OrderRepository interface {
 	CreateOrderTx(ctx context.Context, tx *sqlx.Tx, order Order) (uuid.UUID, error)
 	CreateOrderItem(ctx context.Context, item OrderItem) error
 	CreateOrderItemTx(ctx context.Context, tx *sqlx.Tx, item OrderItem) error
+	UpdateOrderStatus(ctx context.Context, req *UpdateOrderStatusReq) error
 	GetOrder(ctx context.Context, req *pb.OrderId) (*Order, error)
 	GetAll(ctx context.Context) ([]*pb.Order, error)
 }
@@ -40,4 +42,11 @@ type OrderItem struct {
 	Name     string    `json:"name" db:"name"`
 	Quantity int       `json:"quantity" db:"quantity"`
 	PriceID  string    `json:"price_id" db:"price_id"`
+}
+
+// Request / Response
+
+type UpdateOrderStatusReq struct {
+	ID     uuid.UUID               `db:"id"`
+	Status commontypes.OrderStatus `db:"status"`
 }

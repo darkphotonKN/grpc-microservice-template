@@ -41,7 +41,7 @@ func (s *service) CreatePayment(ctx context.Context, order *pb.Order) (string, e
 	fmt.Println("firing update order status")
 
 	s.UpdateOrderStatus(ctx, &pb.OrderStatusUpdateRequest{
-		ID:     "b3ca3946-b8ea-4ec2-800b-a1991227c3a5",
+		ID:     "502447ac-6b42-40d9-8c88-7958e3aa9a77",
 		Status: strconv.Itoa(int(commontypes.Paid)),
 	})
 

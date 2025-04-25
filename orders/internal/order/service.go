@@ -165,6 +165,12 @@ func (s *service) ValidateOrder(ctx context.Context, req *pb.CreateOrderRequest)
 func (s *service) UpdateOrderStatus(ctx context.Context, req *pb.OrderStatusUpdateRequest) (*pb.Order, error) {
 	fmt.Printf("Recieved update order status: %+v\n", req)
 
+	// parse out the id and check
+	idUUID, err := uuid.Parse(req.ID)
+	if err != nil {
+		return nil, err
+	}
+
 	// parse out the status and check
 	status, err := strconv.Atoi(req.Status)
 
@@ -174,7 +180,16 @@ func (s *service) UpdateOrderStatus(ctx context.Context, req *pb.OrderStatusUpda
 
 	orderStatus := commontypes.OrderStatus(status)
 
-	fmt.Println("Order status was:", orderStatus)
+	err = s.repo.UpdateOrderStatus(ctx, &UpdateOrderStatusReq{
+		ID:     idUUID,
+		Status: orderStatus,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("Successfully updated order status.")
 
 	return nil, nil
 }
