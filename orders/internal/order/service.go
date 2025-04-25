@@ -163,7 +163,18 @@ func (s *service) ValidateOrder(ctx context.Context, req *pb.CreateOrderRequest)
 }
 
 func (s *service) UpdateOrderStatus(ctx context.Context, req *pb.OrderStatusUpdateRequest) (*pb.Order, error) {
-	fmt.Printf("Recieved update order status: %+v", req)
+	fmt.Printf("Recieved update order status: %+v\n", req)
+
+	// parse out the status and check
+	status, err := strconv.Atoi(req.Status)
+
+	if err != nil {
+		return nil, err
+	}
+
+	orderStatus := commontypes.OrderStatus(status)
+
+	fmt.Println("Order status was:", orderStatus)
 
 	return nil, nil
 }
