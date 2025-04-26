@@ -84,7 +84,8 @@ func (s *repository) UpdateOrderStatus(ctx context.Context, req *UpdateOrderStat
 	query := `
 	UPDATE orders 
 	SET 
-		status = COALESCE(:status, status)
+		status = COALESCE(:status, status),
+		payment_link = COALESCE(:payment_link, payment_link)
 	WHERE id = :id
 	`
 

@@ -11,6 +11,7 @@ message Order {
   string ID = 1;
   string customerID = 2;
   string Status = 3;
+  string paymentLink = 4;
   repeated Item Items = 4;
 }
 
@@ -25,6 +26,7 @@ message OrderStatus {
 message OrderStatusUpdateRequest {
   string ID = 1;
   string status = 2;
+  string paymentLink = 3;
 }
 
 message Orders {

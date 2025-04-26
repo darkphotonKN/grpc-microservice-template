@@ -68,6 +68,7 @@ func (c *consumer) Listen() {
 
 			if err != nil {
 				fmt.Printf("Error when creating payment: %s\n", err)
+
 				continue
 			}
 

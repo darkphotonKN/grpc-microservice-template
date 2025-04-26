@@ -85,7 +85,7 @@ func (s *service) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (
 		Items:      items,
 	}
 
-	// create order and order items with transaction to retain atomicitiy
+	// create order and order items with transaction to retain atomicity
 	var orderID uuid.UUID
 	db := (s.repo).(*repository).DB
 
@@ -137,7 +137,7 @@ func (s *service) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (
 		return nil, err
 	}
 
-	// publish event to message broker
+	// publish EVENT to message broker
 	s.publishCh.PublishWithContext(
 		ctx,
 		broker.OrderCreatedEvent,
@@ -181,8 +181,9 @@ func (s *service) UpdateOrderStatus(ctx context.Context, req *pb.OrderStatusUpda
 	orderStatus := commontypes.OrderStatus(status)
 
 	err = s.repo.UpdateOrderStatus(ctx, &UpdateOrderStatusReq{
-		ID:     idUUID,
-		Status: orderStatus,
+		ID:          idUUID,
+		Status:      orderStatus,
+		PaymentLink: req.PaymentLink,
 	})
 
 	if err != nil {

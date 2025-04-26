@@ -47,6 +47,7 @@ type OrderItem struct {
 // Request / Response
 
 type UpdateOrderStatusReq struct {
-	ID     uuid.UUID               `db:"id"`
-	Status commontypes.OrderStatus `db:"status"`
+	ID          uuid.UUID               `db:"id"`
+	Status      commontypes.OrderStatus `db:"status"`
+	PaymentLink string                  `db:"payment_link"`
 }

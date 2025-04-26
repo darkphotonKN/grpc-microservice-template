@@ -3,6 +3,8 @@ package payment
 import (
 	"context"
 	pb "microservice-template/common/api"
+	"microservice-template/common/discovery/consul"
+	commonenv "microservice-template/common/env"
 	"microservice-template/payments/internal/order"
 	"microservice-template/payments/processor/inmem"
 	"testing"
@@ -17,12 +19,18 @@ type PaymentServiceTestSuite struct {
 	service   *service
 }
 
+var (
+	serviceName = "payment"
+	consulAddr  = commonenv.EnvString("CONSUL_ADDR", "localhost:8500")
+)
+
 // setup fields with respective fields - method name fixed
 func (s *PaymentServiceTestSuite) SetupTest() {
 	newInMemProcessor := inmem.NewInMemProcessor()
 	s.processor = newInMemProcessor.(*inmem.InMemProcessor)
 
-	newPaymentService := NewService(newInMemProcessor, "")
+	registry, _ := consul.NewRegistry(consulAddr, serviceName)
+	newPaymentService := NewService(newInMemProcessor, "", order.NewClient(registry))
 	s.service = newPaymentService
 }
 
