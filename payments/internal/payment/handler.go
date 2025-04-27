@@ -3,7 +3,6 @@ package payment
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -21,8 +20,9 @@ func NewHandler(service PaymentService) PaymentHandler {
 }
 
 func (h *handler) HandleStripeWebhook(c *gin.Context) {
-	// read webhook
-	body, err := io.ReadAll(c.Request.Body)
+	// read webhook response data
+	body, err := c.GetRawData()
+
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Error when attempting fetch body of webhook." + err.Error()})
 		return

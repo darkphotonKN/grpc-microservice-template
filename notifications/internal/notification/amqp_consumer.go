@@ -60,8 +60,6 @@ func (c *consumer) Listen() {
 		log.Fatal(err)
 	}
 
-	var forever chan interface{}
-
 	go func() {
 		fmt.Printf("\nStarted go routine for receiving messages:\n %+v\n\n", msgs)
 
@@ -87,5 +85,4 @@ func (c *consumer) Listen() {
 		}
 	}()
 
-	<-forever
 }

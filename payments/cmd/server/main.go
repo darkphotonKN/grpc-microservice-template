@@ -100,19 +100,28 @@ func main() {
 	// start a http server for exposing webhook endpoint to stripe
 	router := gin.Default()
 
-	router.GET("/api/payment/webhook", paymentHandler.HandleStripeWebhook)
-
-	log.Printf("http payment server started on PORT: %s\n", httpAddr)
-	log.Printf("grpc Order Server started on PORT: %s\n", grpcAddr)
+	router.POST("/api/payment/webhook", paymentHandler.HandleStripeWebhook)
 
 	// -- start server and capture errors --
-	if err := router.Run(":" + httpAddr); err != nil {
-		log.Fatal("Failed to start server")
-	}
+	go startHttpServer(router)
+
+	log.Printf("grpc Payment Server started on PORT: %s\n", grpcAddr)
 
 	// start serving requests
 	if err := grpcServer.Serve(l); err != nil {
 		log.Fatal("Can't connect to grpc server. Error:", err.Error())
+	}
+}
+
+// for concurrently running processes
+
+// http server
+func startHttpServer(router *gin.Engine) {
+
+	log.Printf("http payment server started on PORT: %s\n", httpAddr)
+
+	if err := router.Run(":" + httpAddr); err != nil {
+		log.Fatal("Failed to start server")
 	}
 
 }

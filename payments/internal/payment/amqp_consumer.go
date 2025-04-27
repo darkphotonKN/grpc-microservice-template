@@ -49,8 +49,6 @@ func (c *consumer) Listen() {
 
 	msgs, err := c.publishChan.Consume(queue.Name, "", true, false, false, false, nil)
 
-	var forever chan interface{}
-
 	go func() {
 		for msg := range msgs {
 			fmt.Println("received message:", msg)
@@ -80,5 +78,4 @@ func (c *consumer) Listen() {
 		}
 	}()
 
-	<-forever
 }
