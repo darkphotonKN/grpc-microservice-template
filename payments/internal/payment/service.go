@@ -44,7 +44,7 @@ func (s *service) CreatePayment(ctx context.Context, order *pb.Order) (string, e
 	// TODO: remove after testing, should fire from stripe payment callback
 	fmt.Println("firing update order status")
 	_, err = s.UpdateOrderStatus(ctx, &pb.OrderStatusUpdateRequest{
-		ID:          "95126b27-2b44-4963-9ba4-d5910ea42eec",
+		ID:          "b9a9dbce-a8b4-402a-8b68-23cad60d3b27",
 		Status:      strconv.Itoa(int(commontypes.Paid)),
 		PaymentLink: link,
 	})

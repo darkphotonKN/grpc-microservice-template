@@ -74,7 +74,7 @@ func (h *Handler) HandleGetOrderStatus(c *gin.Context) {
 
 	fmt.Printf("Successfully retrieved order status:%+v\n", orderStatus)
 
-	c.JSON(http.StatusOK, gin.H{"result": orderStatus})
+	c.JSON(http.StatusOK, orderStatus)
 }
 
 func (h *Handler) HandleCreateOrder(c *gin.Context) {
@@ -109,5 +109,5 @@ func (h *Handler) HandleCreateOrder(c *gin.Context) {
 	}
 
 	fmt.Printf("Successfully created order %+v", order)
-	c.JSON(http.StatusOK, gin.H{"result": order})
+	c.JSON(http.StatusOK, order)
 }
