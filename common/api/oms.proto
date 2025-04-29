@@ -12,7 +12,7 @@ message Order {
   string customerID = 2;
   string Status = 3;
   string paymentLink = 4;
-  repeated Item Items = 4;
+  repeated Item Items = 5;
 }
 
 message OrderId {
@@ -23,10 +23,18 @@ message OrderStatus {
   string status = 1;
 }
 
+message OrderPaymentLink {
+  string orderPaymentLink = 1;
+}
+
 message OrderStatusUpdateRequest {
   string ID = 1;
   string status = 2;
-  string paymentLink = 3;
+}
+
+message OrderPaymentUpdateRequest {
+  string ID = 1;
+  string paymentLink = 2;
 }
 
 message Orders {
@@ -37,7 +45,9 @@ service OrderService {
   rpc CreateOrder(CreateOrderRequest) returns (Order);
   rpc GetOrders(google.protobuf.Empty) returns (Orders);
   rpc GetOrderStatus(OrderId) returns (OrderStatus);
+  rpc GetOrderPaymentLink(OrderId) returns (OrderPaymentLink);
   rpc UpdateOrderStatus(OrderStatusUpdateRequest) returns (Order);
+  rpc UpdateOrderPaymentLink(OrderPaymentUpdateRequest) returns (Order);
 }
 
 message Item {

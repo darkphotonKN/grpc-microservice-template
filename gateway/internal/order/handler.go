@@ -77,6 +77,38 @@ func (h *Handler) HandleGetOrderStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, orderStatus)
 }
 
+func (h *Handler) HandleGetOrderPaymentLink(c *gin.Context) {
+	id := c.Param("id")
+
+	orderId := pb.OrderId{
+		ID: id,
+	}
+
+	orderPaymentLink, err := h.gateway.GetOrderPaymentLink(c.Request.Context(), &orderId)
+
+	if err != nil {
+
+		// handle errors from GRPC, using grpc's status convert helper
+		errStatus := status.Convert(err)
+
+		switch errStatus.Code() {
+		case codes.InvalidArgument:
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Error when attempting to get order status" + err.Error()})
+			return
+		case codes.NotFound:
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Error when attempting to get order status" + err.Error()})
+		}
+
+		// other error codes
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error when attempting to get order status: " + err.Error()})
+		return
+	}
+
+	fmt.Printf("Successfully retrieved order PaymentLink:%+v\n", orderPaymentLink)
+
+	c.JSON(http.StatusOK, orderPaymentLink)
+}
+
 func (h *Handler) HandleCreateOrder(c *gin.Context) {
 	var items []*pb.ItemsWithQuantity
 

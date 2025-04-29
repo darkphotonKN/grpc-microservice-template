@@ -16,6 +16,7 @@ type OrderService interface {
 	GetOrderStatus(ctx context.Context, req *pb.OrderId) (*pb.OrderStatus, error)
 	ValidateOrder(ctx context.Context, req *pb.CreateOrderRequest) error
 	UpdateOrderStatus(ctx context.Context, req *pb.OrderStatusUpdateRequest) (*pb.Order, error)
+	UpdateOrderPaymentLink(ctx context.Context, req *pb.OrderPaymentUpdateRequest) (*pb.Order, error)
 }
 
 type OrderRepository interface {
@@ -24,6 +25,7 @@ type OrderRepository interface {
 	CreateOrderItem(ctx context.Context, item OrderItem) error
 	CreateOrderItemTx(ctx context.Context, tx *sqlx.Tx, item OrderItem) error
 	UpdateOrderStatus(ctx context.Context, req *UpdateOrderStatusReq) error
+	UpdateOrderPaymentLink(ctx context.Context, req *pb.OrderPaymentUpdateRequest) error
 	GetOrder(ctx context.Context, req *pb.OrderId) (*Order, error)
 	GetAll(ctx context.Context) ([]*pb.Order, error)
 }
@@ -31,9 +33,10 @@ type OrderRepository interface {
 // Entity
 
 type Order struct {
-	ID         uuid.UUID `json:"id" db:"id"`
-	CustomerID string    `json:"customer_id" db:"customer_id"`
-	Status     int       `json:"status" db:"status"`
+	ID          uuid.UUID `json:"id" db:"id"`
+	CustomerID  string    `json:"customer_id" db:"customer_id"`
+	Status      int       `json:"status" db:"status"`
+	PaymentLink string    `json:"payment_link" db:"payment_link"`
 }
 
 type OrderItem struct {

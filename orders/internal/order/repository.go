@@ -24,7 +24,6 @@ func NewRepository(db *sqlx.DB) OrderRepository {
 
 func (s *repository) GetOrder(ctx context.Context, orderId *pb.OrderId) (*Order, error) {
 	var order Order
-
 	query := `
 	SELECT 
 		status
@@ -85,11 +84,35 @@ func (s *repository) UpdateOrderStatus(ctx context.Context, req *UpdateOrderStat
 	UPDATE orders 
 	SET 
 		status = COALESCE(:status, status),
-		payment_link = COALESCE(:payment_link, payment_link)
 	WHERE id = :id
 	`
 
 	_, err := s.DB.NamedExecContext(ctx, query, req)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *repository) UpdateOrderPaymentLink(ctx context.Context, req *pb.OrderPaymentUpdateRequest) error {
+	// temporary struct for db column mapping
+	orderStruct := struct {
+		ID          string `db:"id"`
+		PaymentLink string `db:"payment_link"`
+	}{
+		ID:          req.ID,
+		PaymentLink: req.PaymentLink,
+	}
+
+	query := `
+	UPDATE orders 
+	SET 
+		payment_link = COALESCE(:payment_link, payment_link)
+	WHERE id = :id
+	`
+
+	_, err := s.DB.NamedExecContext(ctx, query, orderStruct)
 	if err != nil {
 		return err
 	}

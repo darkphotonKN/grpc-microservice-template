@@ -29,6 +29,20 @@ func NewService(repo OrderRepository, publishCh *amqp.Channel) OrderService {
 	}
 }
 
+func (s *service) GetOrderPaymentLink(ctx context.Context, req *pb.OrderId) (*pb.OrderPaymentLink, error) {
+	order, err := s.repo.GetOrder(ctx, req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("\nOrder retrieved: \n%+v\n\n", order)
+
+	return &pb.OrderPaymentLink{
+		OrderPaymentLink: order.PaymentLink,
+	}, nil
+}
+
 func (s *service) GetOrderStatus(ctx context.Context, req *pb.OrderId) (*pb.OrderStatus, error) {
 	order, err := s.repo.GetOrder(ctx, req)
 
@@ -137,7 +151,7 @@ func (s *service) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (
 		return nil, err
 	}
 
-	// publish EVENT to message broker
+	// publish ORDER CREATED EVENT to message broker
 	s.publishCh.PublishWithContext(
 		ctx,
 		broker.OrderCreatedEvent,
@@ -181,9 +195,8 @@ func (s *service) UpdateOrderStatus(ctx context.Context, req *pb.OrderStatusUpda
 	orderStatus := commontypes.OrderStatus(status)
 
 	err = s.repo.UpdateOrderStatus(ctx, &UpdateOrderStatusReq{
-		ID:          idUUID,
-		Status:      orderStatus,
-		PaymentLink: req.PaymentLink,
+		ID:     idUUID,
+		Status: orderStatus,
 	})
 
 	if err != nil {
@@ -191,6 +204,20 @@ func (s *service) UpdateOrderStatus(ctx context.Context, req *pb.OrderStatusUpda
 	}
 
 	fmt.Println("Successfully updated order status.")
+
+	return nil, nil
+}
+
+func (s *service) UpdateOrderPaymentLink(ctx context.Context, req *pb.OrderPaymentUpdateRequest) (*pb.Order, error) {
+	fmt.Printf("Recieved update order paymentLink: %+v\n", req)
+
+	err := s.repo.UpdateOrderPaymentLink(ctx, req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("Successfully updated order payment link.")
 
 	return nil, nil
 }

@@ -2,7 +2,6 @@ package order
 
 import (
 	"context"
-	"fmt"
 	pb "microservice-template/common/api"
 
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -20,8 +19,6 @@ func NewGrpcHandler(service OrderService) *grpcHandler {
 }
 
 func (h *grpcHandler) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.Order, error) {
-	fmt.Println("Order received!")
-
 	return h.service.CreateOrder(ctx, req)
 }
 

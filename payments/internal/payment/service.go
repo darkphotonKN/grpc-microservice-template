@@ -41,6 +41,8 @@ func (s *service) CreatePayment(ctx context.Context, order *pb.Order) (string, e
 		return "", err
 	}
 
+	// update payment link
+
 	return link, nil
 }
 
@@ -52,10 +54,15 @@ func (s *service) UpdateOrderStatus(ctx context.Context, update UpdateOrderStatu
 	fmt.Println("firing update order status")
 
 	req := &pb.OrderStatusUpdateRequest{
-		ID:          update.OrderId,
-		Status:      strconv.Itoa(int(commontypes.Paid)),
-		PaymentLink: update.PaymentLink,
+		ID:     update.OrderId,
+		Status: strconv.Itoa(int(commontypes.Paid)),
 	}
 
 	return s.orderClient.UpdateOrderStatus(ctx, req)
+}
+
+func (s *service) UpdateOrderPaymentLink(ctx context.Context, req *pb.OrderPaymentUpdateRequest) (*pb.Order, error) {
+	fmt.Println("firing update order payment link")
+
+	return s.orderClient.UpdateOrderPaymentLink(ctx, req)
 }

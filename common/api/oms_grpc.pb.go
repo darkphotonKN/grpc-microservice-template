@@ -20,10 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	OrderService_CreateOrder_FullMethodName       = "/api.OrderService/CreateOrder"
-	OrderService_GetOrders_FullMethodName         = "/api.OrderService/GetOrders"
-	OrderService_GetOrderStatus_FullMethodName    = "/api.OrderService/GetOrderStatus"
-	OrderService_UpdateOrderStatus_FullMethodName = "/api.OrderService/UpdateOrderStatus"
+	OrderService_CreateOrder_FullMethodName            = "/api.OrderService/CreateOrder"
+	OrderService_GetOrders_FullMethodName              = "/api.OrderService/GetOrders"
+	OrderService_GetOrderStatus_FullMethodName         = "/api.OrderService/GetOrderStatus"
+	OrderService_GetOrderPaymentLink_FullMethodName    = "/api.OrderService/GetOrderPaymentLink"
+	OrderService_UpdateOrderStatus_FullMethodName      = "/api.OrderService/UpdateOrderStatus"
+	OrderService_UpdateOrderPaymentLink_FullMethodName = "/api.OrderService/UpdateOrderPaymentLink"
 )
 
 // OrderServiceClient is the client API for OrderService service.
@@ -33,7 +35,9 @@ type OrderServiceClient interface {
 	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*Order, error)
 	GetOrders(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Orders, error)
 	GetOrderStatus(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*OrderStatus, error)
+	GetOrderPaymentLink(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*OrderPaymentLink, error)
 	UpdateOrderStatus(ctx context.Context, in *OrderStatusUpdateRequest, opts ...grpc.CallOption) (*Order, error)
+	UpdateOrderPaymentLink(ctx context.Context, in *OrderPaymentUpdateRequest, opts ...grpc.CallOption) (*Order, error)
 }
 
 type orderServiceClient struct {
@@ -74,10 +78,30 @@ func (c *orderServiceClient) GetOrderStatus(ctx context.Context, in *OrderId, op
 	return out, nil
 }
 
+func (c *orderServiceClient) GetOrderPaymentLink(ctx context.Context, in *OrderId, opts ...grpc.CallOption) (*OrderPaymentLink, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OrderPaymentLink)
+	err := c.cc.Invoke(ctx, OrderService_GetOrderPaymentLink_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *orderServiceClient) UpdateOrderStatus(ctx context.Context, in *OrderStatusUpdateRequest, opts ...grpc.CallOption) (*Order, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Order)
 	err := c.cc.Invoke(ctx, OrderService_UpdateOrderStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *orderServiceClient) UpdateOrderPaymentLink(ctx context.Context, in *OrderPaymentUpdateRequest, opts ...grpc.CallOption) (*Order, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Order)
+	err := c.cc.Invoke(ctx, OrderService_UpdateOrderPaymentLink_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +115,9 @@ type OrderServiceServer interface {
 	CreateOrder(context.Context, *CreateOrderRequest) (*Order, error)
 	GetOrders(context.Context, *emptypb.Empty) (*Orders, error)
 	GetOrderStatus(context.Context, *OrderId) (*OrderStatus, error)
+	GetOrderPaymentLink(context.Context, *OrderId) (*OrderPaymentLink, error)
 	UpdateOrderStatus(context.Context, *OrderStatusUpdateRequest) (*Order, error)
+	UpdateOrderPaymentLink(context.Context, *OrderPaymentUpdateRequest) (*Order, error)
 	mustEmbedUnimplementedOrderServiceServer()
 }
 
@@ -111,8 +137,14 @@ func (UnimplementedOrderServiceServer) GetOrders(context.Context, *emptypb.Empty
 func (UnimplementedOrderServiceServer) GetOrderStatus(context.Context, *OrderId) (*OrderStatus, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrderStatus not implemented")
 }
+func (UnimplementedOrderServiceServer) GetOrderPaymentLink(context.Context, *OrderId) (*OrderPaymentLink, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOrderPaymentLink not implemented")
+}
 func (UnimplementedOrderServiceServer) UpdateOrderStatus(context.Context, *OrderStatusUpdateRequest) (*Order, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateOrderStatus not implemented")
+}
+func (UnimplementedOrderServiceServer) UpdateOrderPaymentLink(context.Context, *OrderPaymentUpdateRequest) (*Order, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateOrderPaymentLink not implemented")
 }
 func (UnimplementedOrderServiceServer) mustEmbedUnimplementedOrderServiceServer() {}
 func (UnimplementedOrderServiceServer) testEmbeddedByValue()                      {}
@@ -189,6 +221,24 @@ func _OrderService_GetOrderStatus_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrderService_GetOrderPaymentLink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OrderId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).GetOrderPaymentLink(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrderService_GetOrderPaymentLink_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).GetOrderPaymentLink(ctx, req.(*OrderId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _OrderService_UpdateOrderStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(OrderStatusUpdateRequest)
 	if err := dec(in); err != nil {
@@ -203,6 +253,24 @@ func _OrderService_UpdateOrderStatus_Handler(srv interface{}, ctx context.Contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(OrderServiceServer).UpdateOrderStatus(ctx, req.(*OrderStatusUpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OrderService_UpdateOrderPaymentLink_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OrderPaymentUpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).UpdateOrderPaymentLink(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrderService_UpdateOrderPaymentLink_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).UpdateOrderPaymentLink(ctx, req.(*OrderPaymentUpdateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -227,8 +295,16 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _OrderService_GetOrderStatus_Handler,
 		},
 		{
+			MethodName: "GetOrderPaymentLink",
+			Handler:    _OrderService_GetOrderPaymentLink_Handler,
+		},
+		{
 			MethodName: "UpdateOrderStatus",
 			Handler:    _OrderService_UpdateOrderStatus_Handler,
+		},
+		{
+			MethodName: "UpdateOrderPaymentLink",
+			Handler:    _OrderService_UpdateOrderPaymentLink_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

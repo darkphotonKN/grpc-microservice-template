@@ -51,3 +51,28 @@ func (c *Client) UpdateOrderStatus(ctx context.Context, req *pb.OrderStatusUpdat
 
 	return orderStatus, nil
 }
+
+func (c *Client) UpdateOrderPaymentLink(ctx context.Context, req *pb.OrderPaymentUpdateRequest) (*pb.Order, error) {
+	// discovery
+	conn, err := discovery.ServiceConnection(ctx, serviceName, c.registry)
+
+	if err != nil {
+		log.Fatalf("Failed to dial to server. Error: %s\n", err)
+	}
+
+	// create client to interface with through service discovery connection
+	client := pb.NewOrderServiceClient(conn)
+	orderStatus, err := client.UpdateOrderPaymentLink(ctx, req)
+
+	// custom error mapping
+	if err != nil {
+		if errors.Is(err, commonerrors.ErrNoItemFound) {
+			return orderStatus, status.Error(codes.NotFound, "Order not found.")
+		}
+		return nil, status.Errorf(codes.Internal, "Failed to get order status: %v", err)
+	}
+
+	fmt.Printf("Updating order status %+v through payment service after service discovery\n", orderStatus)
+
+	return orderStatus, nil
+}
