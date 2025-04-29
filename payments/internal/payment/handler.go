@@ -70,24 +70,51 @@ func (h *handler) HandleStripeWebhook(c *gin.Context) {
 	case "checkout.session.completed":
 		fmt.Println("a client successfully completed a stripe payment.")
 
-		// extract data from webhook ?
+		// --- extract data ---
 		var data map[string]interface{}
 
+		// -- raw event data --
 		if err := json.Unmarshal(event.Data.Raw, &data); err != nil {
 			fmt.Printf("Error when trying to unmarshal data from payment success: %v", err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Error when trying to unmarshal data from payment success: %v", err)})
 			return
 		}
 
 		fmt.Printf("\nUnmarshalled Data: %+v\n\n", data)
 
-		// Update order status
-		// You'll handle this via gRPC to Order Service
+		// -- metadata --
+		metadata, ok := data["metadata"].(map[string]interface{})
 
-		// Publish payment completed event
-		// This is what you're already familiar with
+		if !ok {
+			fmt.Println("No metadata found in session or wrong format")
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid metadata in session"})
+			return
+		}
+
+		fmt.Printf("\nUnmarshalled Metadata: %+v\n\n", metadata)
+
+		// -- order id --
+		orderID, ok := metadata["orderID"].(string)
+
+		if !ok {
+			fmt.Println("No orderID found found in the metadata.")
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid metadata in session"})
+			return
+		}
+
+		fmt.Printf("orderID from response %s\n", orderID)
+
+		// update order status to order service
+		_, err := h.service.UpdateOrderStatus(c.Request.Context(), UpdateOrderStatus{OrderId: orderID})
+		if err != nil {
+			fmt.Println("Error on order status update from payment handler.")
+			c.JSON(http.StatusBadRequest, gin.H{"result": "success"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"result": "success"})
 	}
 
 	fmt.Println("passed check with no matching event type.")
 
-	c.JSON(http.StatusOK, gin.H{"result": "success"})
 }

@@ -41,17 +41,6 @@ func (s *service) CreatePayment(ctx context.Context, order *pb.Order) (string, e
 		return "", err
 	}
 
-	// TODO: remove after testing, should fire from stripe payment callback
-	fmt.Println("firing update order status")
-	_, err = s.UpdateOrderStatus(ctx, &pb.OrderStatusUpdateRequest{
-		ID:          "b9a9dbce-a8b4-402a-8b68-23cad60d3b27",
-		Status:      strconv.Itoa(int(commontypes.Paid)),
-		PaymentLink: link,
-	})
-	if err != nil {
-		return "", err
-	}
-
 	return link, nil
 }
 
@@ -59,6 +48,14 @@ func (s *service) GetWebhookSecret() string {
 	return s.stripeWebhookSecret
 }
 
-func (s *service) UpdateOrderStatus(ctx context.Context, req *pb.OrderStatusUpdateRequest) (*pb.Order, error) {
+func (s *service) UpdateOrderStatus(ctx context.Context, update UpdateOrderStatus) (*pb.Order, error) {
+	fmt.Println("firing update order status")
+
+	req := &pb.OrderStatusUpdateRequest{
+		ID:          update.OrderId,
+		Status:      strconv.Itoa(int(commontypes.Paid)),
+		PaymentLink: update.PaymentLink,
+	}
+
 	return s.orderClient.UpdateOrderStatus(ctx, req)
 }

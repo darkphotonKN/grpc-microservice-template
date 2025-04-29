@@ -14,4 +14,12 @@ type PaymentHandler interface {
 type PaymentService interface {
 	CreatePayment(context.Context, *pb.Order) (string, error)
 	GetWebhookSecret() string
+	UpdateOrderStatus(ctx context.Context, update UpdateOrderStatus) (*pb.Order, error)
+}
+
+// Request / Response
+
+type UpdateOrderStatus struct {
+	OrderId     string
+	PaymentLink string
 }
