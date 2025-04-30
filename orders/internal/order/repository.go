@@ -26,7 +26,9 @@ func (s *repository) GetOrder(ctx context.Context, orderId *pb.OrderId) (*Order,
 	var order Order
 	query := `
 	SELECT 
-		status
+		id,
+		status,
+		payment_link
 	FROM orders
 	WHERE id = $1
 	`
@@ -51,7 +53,7 @@ func (s *repository) GetOrder(ctx context.Context, orderId *pb.OrderId) (*Order,
 	return &order, nil
 }
 
-func (s *repository) CreateOrder(ctx context.Context, order Order) (uuid.UUID, error) {
+func (s repository) CreateOrder(ctx context.Context, order Order) (uuid.UUID, error) {
 	query := `
 	INSERT INTO orders (customer_id, status)
 	VALUES(:customer_id, :status)

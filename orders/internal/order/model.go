@@ -14,6 +14,7 @@ type OrderService interface {
 	CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.Order, error)
 	GetOrders(ctx context.Context, empty *emptypb.Empty) (*pb.Orders, error)
 	GetOrderStatus(ctx context.Context, req *pb.OrderId) (*pb.OrderStatus, error)
+	GetOrderPaymentLink(ctx context.Context, req *pb.OrderId) (*pb.OrderPaymentLink, error)
 	ValidateOrder(ctx context.Context, req *pb.CreateOrderRequest) error
 	UpdateOrderStatus(ctx context.Context, req *pb.OrderStatusUpdateRequest) (*pb.Order, error)
 	UpdateOrderPaymentLink(ctx context.Context, req *pb.OrderPaymentUpdateRequest) (*pb.Order, error)

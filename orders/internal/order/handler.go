@@ -36,3 +36,11 @@ func (h *grpcHandler) UpdateOrderStatus(ctx context.Context, req *pb.OrderStatus
 
 	return h.service.UpdateOrderStatus(ctx, req)
 }
+
+func (h *grpcHandler) UpdateOrderPaymentLink(ctx context.Context, req *pb.OrderPaymentUpdateRequest) (*pb.Order, error) {
+	return h.service.UpdateOrderPaymentLink(ctx, req)
+}
+
+func (h *grpcHandler) GetOrderPaymentLink(ctx context.Context, req *pb.OrderId) (*pb.OrderPaymentLink, error) {
+	return h.service.GetOrderPaymentLink(ctx, req)
+}

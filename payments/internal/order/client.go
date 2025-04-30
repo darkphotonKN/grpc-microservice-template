@@ -62,17 +62,17 @@ func (c *Client) UpdateOrderPaymentLink(ctx context.Context, req *pb.OrderPaymen
 
 	// create client to interface with through service discovery connection
 	client := pb.NewOrderServiceClient(conn)
-	orderStatus, err := client.UpdateOrderPaymentLink(ctx, req)
+	paymentLink, err := client.UpdateOrderPaymentLink(ctx, req)
 
 	// custom error mapping
 	if err != nil {
 		if errors.Is(err, commonerrors.ErrNoItemFound) {
-			return orderStatus, status.Error(codes.NotFound, "Order not found.")
+			return paymentLink, status.Error(codes.NotFound, "Order not found.")
 		}
 		return nil, status.Errorf(codes.Internal, "Failed to get order status: %v", err)
 	}
 
-	fmt.Printf("Updating order status %+v through payment service after service discovery\n", orderStatus)
+	fmt.Printf("Updating order payment link: %+v\n", paymentLink)
 
-	return orderStatus, nil
+	return paymentLink, nil
 }

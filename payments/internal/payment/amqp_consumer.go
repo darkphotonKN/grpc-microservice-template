@@ -62,19 +62,19 @@ func (c *consumer) Listen() {
 				continue
 			}
 
-			paymentRes, err := c.service.CreatePayment(context.Background(), newOrder)
+			paymentLink, err := c.service.CreatePayment(context.Background(), newOrder)
 
 			if err != nil {
 				fmt.Printf("Error when creating payment: %s\n", err)
-
 				continue
 			}
 
-			fmt.Printf("\nunmarshalled result: %+v\n\n", newOrder)
-			fmt.Println("Create payment result:", paymentRes)
+			// call update payment via grpc
+			c.service.UpdateOrderPaymentLink(context.Background(), &pb.OrderPaymentUpdateRequest{
+				ID:          newOrder.ID,
+				PaymentLink: paymentLink,
+			})
 
-			// TODO: remove after testing, once stripe webhook works:
-			// NOTE: just for testing grpc call to update newOrder status
 		}
 	}()
 

@@ -49,8 +49,7 @@ func (s *stripeProcessor) CreatePaymentLink(o *pb.Order) (string, error) {
 		return "", err
 	}
 
-	fmt.Printf("Result of payment link %+v", result)
+	fmt.Printf("\nResult of payment link %+v\n\n", result)
 
 	return result.URL, nil
-
 }

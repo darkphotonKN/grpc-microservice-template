@@ -30,6 +30,7 @@ func NewService(repo OrderRepository, publishCh *amqp.Channel) OrderService {
 }
 
 func (s *service) GetOrderPaymentLink(ctx context.Context, req *pb.OrderId) (*pb.OrderPaymentLink, error) {
+	fmt.Printf("\ngetorderpaymentlink req: %+v\n\n", req)
 	order, err := s.repo.GetOrder(ctx, req)
 
 	if err != nil {
@@ -50,7 +51,7 @@ func (s *service) GetOrderStatus(ctx context.Context, req *pb.OrderId) (*pb.Orde
 		return nil, err
 	}
 
-	fmt.Printf("\nOrder retrieved: \n%+v\n\n", order)
+	fmt.Printf("\nGetOrderStauts: Order retrieved: \n%+v\n\n", order)
 
 	switch commontypes.OrderStatus(order.Status) {
 	case commontypes.Pending:
