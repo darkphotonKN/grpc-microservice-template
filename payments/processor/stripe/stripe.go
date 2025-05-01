@@ -23,7 +23,7 @@ func NewStripeProcessor() processor.PaymentProcessor {
 
 func (s *stripeProcessor) CreatePaymentLink(o *pb.Order) (string, error) {
 
-	gatewaySuccessUrl := fmt.Sprintf("%s/success.html?orderId=%s&customerId=%s", httpGatewayAddr, o.ID, o.CustomerID)
+	gatewaySuccessUrl := fmt.Sprintf("%s/success?orderId=%s&customerId=%s", httpGatewayAddr, o.ID, o.CustomerID)
 
 	// create stripe line items from our order
 	var items []*stripe.CheckoutSessionLineItemParams

@@ -82,7 +82,7 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	paymentService := payment.NewService(processor, stripeWebhookSecret, orderClient)
-	paymentHandler := payment.NewHandler(paymentService)
+	paymentHandler := payment.NewHandler(paymentService, ch)
 	paymentConsumer := payment.NewConsumer(paymentService, ch) // listen through channel from message broker
 	paymentConsumer.Listen()                                   // listen to the channel for messages
 

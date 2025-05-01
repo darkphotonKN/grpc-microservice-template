@@ -3,19 +3,25 @@ package payment
 import (
 	"encoding/json"
 	"fmt"
+	"microservice-template/common/broker"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/stripe/stripe-go/v78/webhook"
+
+	pb "microservice-template/common/api"
 )
 
 type handler struct {
-	service PaymentService
+	service   PaymentService
+	publishCh *amqp.Channel
 }
 
-func NewHandler(service PaymentService) PaymentHandler {
+func NewHandler(service PaymentService, ch *amqp.Channel) PaymentHandler {
 	return &handler{
-		service: service,
+		service:   service,
+		publishCh: ch,
 	}
 }
 
@@ -108,13 +114,39 @@ func (h *handler) HandleStripeWebhook(c *gin.Context) {
 		_, err := h.service.UpdateOrderStatus(c.Request.Context(), UpdateOrderStatus{OrderId: orderID})
 		if err != nil {
 			fmt.Println("Error on order status update from payment handler.")
-			c.JSON(http.StatusBadRequest, gin.H{"result": "success"})
+			c.JSON(http.StatusBadRequest, gin.H{"result": "Error on order status update from payment handler."})
 			return
 		}
+
+		order := &pb.Order{
+			ID:     orderID,
+			Status: "paid",
+		}
+
+		marshalledOrder, err := json.Marshal(order)
+
+		if err != nil {
+			fmt.Println("Error on marshalling payment status for message broker.")
+			c.JSON(http.StatusBadRequest, gin.H{"result": "Error on marshalling payment status for message broker."})
+			return
+		}
+
+		// publish PAYMENT PAID event to message broker
+		h.publishCh.PublishWithContext(
+			c.Request.Context(),
+			broker.OrderPaidEvent,
+			"",
+			false,
+			false,
+			amqp.Publishing{
+				ContentType: "application/json",
+				Body:        marshalledOrder,
+				// persist message
+				DeliveryMode: amqp.Persistent,
+			})
 
 		c.JSON(http.StatusOK, gin.H{"result": "success"})
 	}
 
 	fmt.Println("passed check with no matching event type.")
-
 }

@@ -51,8 +51,6 @@ func (s *service) GetOrderStatus(ctx context.Context, req *pb.OrderId) (*pb.Orde
 		return nil, err
 	}
 
-	fmt.Printf("\nGetOrderStauts: Order retrieved: \n%+v\n\n", order)
-
 	switch commontypes.OrderStatus(order.Status) {
 	case commontypes.Pending:
 		statusText := "pending"
@@ -140,6 +138,7 @@ func (s *service) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (
 		return nil
 	})
 
+	// check for any errors during transaction
 	if err != nil {
 		return nil, err
 	}
@@ -185,6 +184,8 @@ func (s *service) UpdateOrderStatus(ctx context.Context, req *pb.OrderStatusUpda
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Printf("order status update: parsedId: %s\n", idUUID)
 
 	// parse out the status and check
 	status, err := strconv.Atoi(req.Status)

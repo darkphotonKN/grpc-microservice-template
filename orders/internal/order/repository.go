@@ -82,10 +82,13 @@ func (s repository) CreateOrder(ctx context.Context, order Order) (uuid.UUID, er
 }
 
 func (s *repository) UpdateOrderStatus(ctx context.Context, req *UpdateOrderStatusReq) error {
+
+	fmt.Printf("\nUpdateOrderStatus repo: \nid: %s, status: %d\n\n", req.ID, req.Status)
+
 	query := `
 	UPDATE orders 
 	SET 
-		status = COALESCE(:status, status),
+		status = COALESCE(:status, status)
 	WHERE id = :id
 	`
 
