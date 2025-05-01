@@ -40,6 +40,13 @@ func (c *consumer) Listen() {
 		log.Fatal(err)
 	}
 
+	orderPaidQueueName := fmt.Sprintf("notification.%s", broker.OrderPaidEvent)
+	queuePaid, err := c.publishChan.QueueDeclare(orderPaidQueueName, true, false, false, false, nil)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// -- bind queue to exchange --
 	// here we bind our newly declared queue to the order created event queue to react on orders being created
 	err = c.publishChan.QueueBind(
@@ -75,13 +82,58 @@ func (c *consumer) Listen() {
 				continue
 			}
 
+			// TODO: update from simple logging.
 			err = c.service.SendMessage(context.Background(), fmt.Sprintf("Order with CustomerID %s was sent.", order.CustomerID))
 
 			if err != nil {
 				fmt.Printf("Error when sending notification.: %s\n", err)
 				continue
 			}
+		}
+	}()
 
+	// -- bind order paid queue to exchange --
+	err = c.publishChan.QueueBind(
+		queuePaid.Name,
+		"",
+		broker.OrderPaidEvent,
+		false,
+		nil,
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// -- consumption --
+	msgs, err = c.publishChan.Consume(queuePaid.Name, "", true, false, false, false, nil)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	go func() {
+		fmt.Printf("\nStarted go routine for receiving order paid messages:\n %+v\n\n", msgs)
+
+		for msg := range msgs {
+			fmt.Println("received order paid message:", msg)
+
+			var order *pb.OrderStatusUpdateRequest
+
+			err := json.Unmarshal(msg.Body, &order)
+
+			if err != nil {
+				fmt.Printf("Error when unmarshalling json: %s\n", err)
+				continue
+			}
+
+			// TODO: update from simple logging.
+			// use message
+			err = c.service.SendMessage(context.Background(), fmt.Sprintf("\nOrder %s successfully paid for. Status: %s.\n\n", order.ID, order.Status))
+
+			if err != nil {
+				fmt.Printf("Error when sending notification.: %s\n", err)
+				continue
+			}
 		}
 	}()
 

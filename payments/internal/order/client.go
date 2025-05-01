@@ -37,6 +37,8 @@ func (c *Client) UpdateOrderStatus(ctx context.Context, req *pb.OrderStatusUpdat
 
 	// create client to interface with through service discovery connection
 	client := pb.NewOrderServiceClient(conn)
+
+	fmt.Printf("\nupdating order status with req: %+v\n\n", req)
 	orderStatus, err := client.UpdateOrderStatus(ctx, req)
 
 	// custom error mapping

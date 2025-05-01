@@ -3,25 +3,19 @@ package payment
 import (
 	"encoding/json"
 	"fmt"
-	"microservice-template/common/broker"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/stripe/stripe-go/v78/webhook"
-
-	pb "microservice-template/common/api"
 )
 
 type handler struct {
-	service   PaymentService
-	publishCh *amqp.Channel
+	service PaymentService
 }
 
-func NewHandler(service PaymentService, ch *amqp.Channel) PaymentHandler {
+func NewHandler(service PaymentService) PaymentHandler {
 	return &handler{
-		service:   service,
-		publishCh: ch,
+		service: service,
 	}
 }
 
@@ -117,33 +111,6 @@ func (h *handler) HandleStripeWebhook(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"result": "Error on order status update from payment handler."})
 			return
 		}
-
-		order := &pb.Order{
-			ID:     orderID,
-			Status: "paid",
-		}
-
-		marshalledOrder, err := json.Marshal(order)
-
-		if err != nil {
-			fmt.Println("Error on marshalling payment status for message broker.")
-			c.JSON(http.StatusBadRequest, gin.H{"result": "Error on marshalling payment status for message broker."})
-			return
-		}
-
-		// publish PAYMENT PAID event to message broker
-		h.publishCh.PublishWithContext(
-			c.Request.Context(),
-			broker.OrderPaidEvent,
-			"",
-			false,
-			false,
-			amqp.Publishing{
-				ContentType: "application/json",
-				Body:        marshalledOrder,
-				// persist message
-				DeliveryMode: amqp.Persistent,
-			})
 
 		c.JSON(http.StatusOK, gin.H{"result": "success"})
 	}
